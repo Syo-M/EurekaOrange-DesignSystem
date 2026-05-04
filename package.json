@@ -30,7 +30,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build -o storybook-static",
     "typecheck": "tsc --noEmit",
-    "preview": "python3 -m http.server 8000",
+    "preview": "python3 -m http.server 8000 --directory .",
     "prepublishOnly": "npm run typecheck && npm run build",
     "release": "npm version patch && npm publish --access public"
   },

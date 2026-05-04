@@ -38,14 +38,29 @@ jobs:
 
       - name: Prepare Pages artifact
         run: |
-          # Copy HTML pages + assets to _site/
-          mkdir -p _site/storybook
-          cp *.html _site/ 2>/dev/null || true
-          cp *.jsx _site/ 2>/dev/null || true
+          # docs/ ページ群を _site/docs/ に配置
+          mkdir -p _site/docs _site/storybook
+          cp docs/*.html _site/docs/
+          cp docs/*.js  _site/docs/
+          cp docs/*.jsx _site/docs/ 2>/dev/null || true
+          # 共有 CSS は _site/ ルートに置く（docs/*.html から ../eureka-orange.css で参照）
           cp eureka-orange.css _site/
-          cp nav.js _site/
           cp tailwind.config.js _site/ 2>/dev/null || true
-          # Copy Storybook build into _site/storybook/
+          # ルートへのアクセスを docs/index.html にリダイレクト
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0; url=docs/index.html">
+            <title>EurekaOrange Design System</title>
+          </head>
+          <body>
+            <p><a href="docs/index.html">EurekaOrange Design System</a></p>
+          </body>
+          </html>
+          EOF
+          # Storybook ビルドを _site/storybook/ に配置
           cp -r storybook-static/. _site/storybook/
 
       - name: Upload Pages artifact
