@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Grid System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="eureka-orange.css">
+<style>
+  body { min-height: 100vh; }
+
+  /* Grid overlay visualization */
+  .grid-vis { position: relative; }
+  .grid-overlay {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    padding: 0;
+    pointer-events: none;
+  }
+  .grid-col {
+    background: rgba(30,207,163,0.07);
+    border: 1px solid rgba(30,207,163,0.15);
+    border-radius: 3px;
+  }
+
+  /* Layout cards */
+  .layout-demo {
+    background: var(--eo-surface-raised);
+    border: 1px solid var(--eo-surface-border);
+    border-radius: var(--eo-radius-xl);
+    overflow: hidden;
+    transition: all 220ms cubic-bezier(0.16,1,0.3,1);
+  }
+  .layout-demo:hover {
+    border-color: var(--eo-accent-border);
+    transform: translateY(-2px);
+  }
+
+  /* Placeholder blocks */
+  .ph { background: rgba(30,207,163,0.1); border: 1px solid rgba(30,207,163,0.2); border-radius: var(--eo-radius-md); }
+  .ph-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--eo-radius-md); }
+  .ph-nav  { background: rgba(30,207,163,0.08); border-bottom: 1px solid rgba(30,207,163,0.2); }
+  .ph-sidebar { background: rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.07); }
+  .ph-accent { background: rgba(30,207,163,0.15); border: 1px solid rgba(30,207,163,0.3); border-radius: var(--eo-radius-md); }
+
+  .label {
+    font-family: var(--eo-font-mono);
+    font-size: 10px;
+    color: var(--eo-accent);
+    letter-spacing: 0.08em;
+  }
+
+  .section-title {
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    font-size: 14px;
+    color: var(--eo-text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  /* Breakpoint indicator */
+  .bp-bar {
+    height: 8px;
+    border-radius: var(--eo-radius-full);
+    background: linear-gradient(90deg, var(--eo-jade-400), var(--eo-jade-300));
+    margin-bottom: 8px;
+  }
+
+  .tab-btn {
+    padding: 8px 20px;
+    border-radius: var(--eo-radius-md);
+    border: none;
+    cursor: pointer;
+    font-family: var(--eo-font-display);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 180ms;
+  }
+  .tab-btn.active {
+    background: var(--eo-accent);
+    color: #0d0d0b;
+  }
+  .tab-btn:not(.active) {
+    background: transparent;
+    color: var(--eo-text-secondary);
+    border: 1px solid var(--eo-surface-border);
+  }
+  .tab-btn:not(.active):hover { background: rgba(255,255,255,0.05); }
+
+  .col-label {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--eo-font-mono);
+    font-size: 9px;
+    color: rgba(30,207,163,0.6);
+    white-space: nowrap;
+  }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<div id="root">
+
+<div style="padding:56px 48px 120px;max-width:1200px;margin:0 auto;">
+
+  <!-- Header -->
+  <div style="margin-bottom:64px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <span style="display:inline-block;width:24px;height:1px;background:var(--eo-accent);"></span>
+      <span class="label" style="text-transform:uppercase;letter-spacing:0.12em;">Layout System</span>
+    </div>
+    <h1 style="font-weight:700;font-size:clamp(36px,5vw,60px);letter-spacing:-0.04em;line-height:0.95;margin-bottom:16px;">
+      Grid &amp;<br>
+      <span style="background:linear-gradient(135deg,#52e2bc,#1ecfa3,#0fb389);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Layout System.</span>
+    </h1>
+    <p style="font-size:16px;color:var(--eo-text-secondary);line-height:1.7;max-width:560px;">
+      4pxベースグリッド・12カラム・5段階ブレークポイント。プロダクト全体の空間リズムを統一します。
+    </p>
+  </div>
+
+  <!-- 01 Grid fundamentals -->
+  <section style="margin-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+      <span class="label">01 —</span>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;">Grid Fundamentals</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+
+    <!-- 12 col visual -->
+    <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-2xl);padding:32px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <div class="label" style="margin-bottom:4px;">12-Column Grid</div>
+          <div style="font-size:13px;color:var(--eo-text-tertiary);">Gutter: 24px · Margin: 32px</div>
+        </div>
+        <div style="display:flex;gap:16px;font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-tertiary);">
+          <span>Max: 1280px</span>
+          <span>Cols: 12</span>
+          <span>Gap: var(--eo-space-6)</span>
+        </div>
+      </div>
+
+      <!-- Grid visualization -->
+      <div style="position:relative;height:60px;margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:24px;height:100%;position:relative;">
+          <div class="grid-col" style="position:relative;"><span class="col-label">1</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">2</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">3</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">4</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">5</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">6</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">7</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">8</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">9</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">10</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">11</span></div>
+          <div class="grid-col" style="position:relative;"><span class="col-label">12</span></div>
+        </div>
+      </div>
+
+      <!-- Span examples -->
+      <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px 24px;">
+        <div class="ph" style="grid-column:span 12;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);">span 12</span>
+          <span style="font-size:11px;color:var(--eo-text-tertiary);">Full width</span>
+        </div>
+        <div class="ph" style="grid-column:span 8;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);">span 8</span>
+          <span style="font-size:11px;color:var(--eo-text-tertiary);">66.7%</span>
+        </div>
+        <div class="ph-dark" style="grid-column:span 4;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">span 4</span>
+          <span style="font-size:11px;color:var(--eo-text-tertiary);">33.3%</span>
+        </div>
+        <div class="ph" style="grid-column:span 6;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);">span 6 · 50%</span>
+        </div>
+        <div class="ph" style="grid-column:span 6;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);">span 6 · 50%</span>
+        </div>
+        <div class="ph-dark" style="grid-column:span 3;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">3</span>
+        </div>
+        <div class="ph-dark" style="grid-column:span 3;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">3</span>
+        </div>
+        <div class="ph-dark" style="grid-column:span 3;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">3</span>
+        </div>
+        <div class="ph-dark" style="grid-column:span 3;padding:8px 12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CSS usage -->
+    <div style="background:#080807;border:1px solid rgba(255,255,255,0.06);border-radius:var(--eo-radius-xl);padding:24px;">
+      <div class="label" style="margin-bottom:16px;">Usage — CSS Classes</div>
+      <pre style="font-family:var(--eo-font-mono);font-size:12px;color:#c8c7c0;line-height:1.8;overflow-x:auto;"><span style="color:#6e6d63">/* 12-column grid container */</span>
+<span style="color:#52e2bc">.eo-grid</span> { display: grid; grid-template-columns: repeat(12, 1fr); gap: <span style="color:#1ecfa3">var(--eo-space-6)</span>; }
+
+<span style="color:#6e6d63">/* Column spans */</span>
+<span style="color:#52e2bc">.eo-col-4</span>  { grid-column: span 4; }   <span style="color:#6e6d63">/* 33.3% */</span>
+<span style="color:#52e2bc">.eo-col-6</span>  { grid-column: span 6; }   <span style="color:#6e6d63">/* 50%   */</span>
+<span style="color:#52e2bc">.eo-col-8</span>  { grid-column: span 8; }   <span style="color:#6e6d63">/* 66.7% */</span>
+<span style="color:#52e2bc">.eo-col-12</span> { grid-column: span 12; }  <span style="color:#6e6d63">/* 100%  */</span>
+<span style="color:#52e2bc">.eo-col-full</span> { grid-column: 1 / -1; } <span style="color:#6e6d63">/* Always full */</span>
+
+<span style="color:#6e6d63">/* Responsive container */</span>
+<span style="color:#52e2bc">.eo-container.eo-container-xl</span> { max-width: <span style="color:#1ecfa3">1280px</span>; margin-inline: auto; padding-inline: <span style="color:#1ecfa3">var(--eo-space-8)</span>; }</pre>
+    </div>
+  </section>
+
+  <!-- 02 Breakpoints -->
+  <section style="margin-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+      <span class="label">02 —</span>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;">Breakpoints</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+
+    <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-2xl);overflow:hidden;">
+      <!-- Responsive ruler -->
+      <div style="padding:28px;border-bottom:1px solid var(--eo-surface-border);">
+        <div style="position:relative;height:48px;background:rgba(255,255,255,0.02);border-radius:var(--eo-radius-md);overflow:hidden;">
+          <!-- Breakpoint bands -->
+          <div style="position:absolute;left:0;width:31.25%;height:100%;background:rgba(30,207,163,0.08);border-right:2px solid rgba(30,207,163,0.4);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);">xs 480</span>
+          </div>
+          <div style="position:absolute;left:31.25%;width:10.41%;height:100%;background:rgba(30,207,163,0.05);border-right:2px solid rgba(30,207,163,0.3);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-jade-300);">sm</span>
+          </div>
+          <div style="position:absolute;left:41.66%;width:8.33%;height:100%;background:rgba(30,207,163,0.04);border-right:2px solid rgba(30,207,163,0.25);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-jade-300);">md</span>
+          </div>
+          <div style="position:absolute;left:50%;width:16.66%;height:100%;background:rgba(30,207,163,0.03);border-right:2px solid rgba(30,207,163,0.2);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-jade-300);">lg</span>
+          </div>
+          <div style="position:absolute;left:66.66%;width:16.66%;height:100%;background:rgba(30,207,163,0.02);border-right:2px solid rgba(30,207,163,0.15);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-jade-300);">xl</span>
+          </div>
+          <div style="position:absolute;left:83.33%;right:0;height:100%;display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);">2xl</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakpoint table -->
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--eo-surface-border);">
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Name</th>
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Min Width</th>
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Grid Cols</th>
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Gutter</th>
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Margin</th>
+            <th style="padding:12px 24px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);">xs</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">480px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">4</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">16px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">16px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-text-tertiary);">スマートフォン縦</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-jade-300);">sm</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">640px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">6</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">20px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">24px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-text-tertiary);">スマートフォン横</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-jade-300);">md</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">768px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">8</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">20px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">24px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-text-tertiary);">タブレット縦</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);background:rgba(30,207,163,0.02);">
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);font-weight:700;">lg ✦</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">1024px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);">12</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);">24px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);">32px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-jade-300);font-weight:500;">デスクトップ — メイン</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-jade-300);">xl</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">1280px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">12</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">24px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">40px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-text-tertiary);">広いデスクトップ</td>
+          </tr>
+          <tr>
+            <td style="padding:14px 24px;"><span style="font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-jade-300);">2xl</span></td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">1536px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">12</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">32px</td>
+            <td style="padding:14px 24px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-text-secondary);">48px</td>
+            <td style="padding:14px 24px;font-size:13px;color:var(--eo-text-tertiary);">超ワイド</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 03 Layout Patterns -->
+  <section style="margin-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+      <span class="label">03 —</span>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;">Layout Templates</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px;">
+
+      <!-- App Shell -->
+      <div class="layout-demo">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">App Shell</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Sidebar + Main + Header</div>
+          </div>
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);background:var(--eo-accent-subtle);padding:3px 8px;border-radius:var(--eo-radius-full);border:1px solid var(--eo-accent-border);">SaaS</span>
+        </div>
+        <div style="padding:20px;background:#080807;">
+          <div style="height:180px;display:grid;grid-template-rows:32px 1fr;grid-template-columns:48px 1fr;gap:0;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);">
+            <!-- Top nav -->
+            <div class="ph-nav" style="grid-column:1/-1;display:flex;align-items:center;padding:0 12px;gap:8px;">
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(30,207,163,0.3);"></div>
+              <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+              <div style="width:20px;height:20px;border-radius:50%;background:rgba(30,207,163,0.2);"></div>
+            </div>
+            <!-- Sidebar -->
+            <div class="ph-sidebar" style="padding:8px 6px;display:flex;flex-direction:column;gap:4px;">
+              <div style="width:28px;height:4px;border-radius:2px;background:rgba(30,207,163,0.3);"></div>
+              <div style="width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+              <div style="width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+              <div style="width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+            </div>
+            <!-- Main content -->
+            <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-content:start;">
+              <div class="ph" style="height:28px;"></div>
+              <div class="ph" style="height:28px;"></div>
+              <div class="ph" style="height:28px;"></div>
+              <div class="ph-dark" style="grid-column:span 2;height:48px;"></div>
+              <div class="ph-dark" style="height:48px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;border-top:1px solid var(--eo-surface-border);">
+          <pre style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);line-height:1.7;overflow-x:auto;">display: grid;
+grid-template:
+  "nav  nav"  56px
+  "side main" 1fr / 220px 1fr;</pre>
+        </div>
+      </div>
+
+      <!-- Content + Aside -->
+      <div class="layout-demo">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Content + Aside</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">8 + 4 column split</div>
+          </div>
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:#22d3ee;background:rgba(6,182,212,0.1);padding:3px 8px;border-radius:var(--eo-radius-full);border:1px solid rgba(6,182,212,0.2);">Doc</span>
+        </div>
+        <div style="padding:20px;background:#080807;">
+          <div style="height:180px;display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:0;border-radius:8px;overflow:hidden;">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="ph" style="height:20px;"></div>
+              <div class="ph-dark" style="height:10px;"></div>
+              <div class="ph-dark" style="height:10px;width:85%;"></div>
+              <div class="ph-dark" style="height:10px;width:70%;"></div>
+              <div style="margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                <div class="ph-dark" style="height:36px;"></div>
+                <div class="ph-dark" style="height:36px;"></div>
+              </div>
+              <div class="ph-dark" style="height:24px;width:60%;"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div class="ph-accent" style="height:56px;"></div>
+              <div class="ph-dark" style="height:10px;"></div>
+              <div class="ph-dark" style="height:10px;"></div>
+              <div class="ph-dark" style="height:10px;width:80%;"></div>
+              <div class="ph-dark" style="height:36px;margin-top:4px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;border-top:1px solid var(--eo-surface-border);">
+          <pre style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);line-height:1.7;overflow-x:auto;"><span style="color:var(--eo-accent)">.eo-grid</span> &gt; <span style="color:var(--eo-jade-300)">.eo-col-8</span>  { /* Main  */ }
+<span style="color:var(--eo-accent)">.eo-grid</span> &gt; <span style="color:var(--eo-jade-300)">.eo-col-4</span>  { /* Aside */ }</pre>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="layout-demo">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Dashboard Grid</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Masonry-style card layout</div>
+          </div>
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:#c084fc;background:rgba(168,85,247,0.1);padding:3px 8px;border-radius:var(--eo-radius-full);border:1px solid rgba(168,85,247,0.2);">Analytics</span>
+        </div>
+        <div style="padding:20px;background:#080807;">
+          <div style="height:180px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto 1fr;gap:8px;align-content:start;">
+            <div class="ph" style="height:36px;display:flex;align-items:center;padding:0 10px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(30,207,163,0.5);margin-right:6px;"></div><div style="flex:1;height:4px;border-radius:2px;background:rgba(30,207,163,0.3);"></div></div>
+            <div class="ph" style="height:36px;"></div>
+            <div class="ph" style="height:36px;"></div>
+            <div class="ph-dark" style="grid-column:span 2;height:56px;"></div>
+            <div class="ph-accent" style="height:56px;"></div>
+            <div class="ph-dark" style="grid-column:span 3;height:44px;"></div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;border-top:1px solid var(--eo-surface-border);">
+          <pre style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);line-height:1.7;overflow-x:auto;">grid-template-columns: repeat(3, 1fr);
+/* KPI cards: span 1 each */
+/* Chart:     span 2       */
+/* Table:     span 3 (full) */</pre>
+        </div>
+      </div>
+
+      <!-- Centered Content -->
+      <div class="layout-demo">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Centered Column</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Auth / Landing narrow column</div>
+          </div>
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:#fbbf24;background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:var(--eo-radius-full);border:1px solid rgba(245,158,11,0.2);">Auth</span>
+        </div>
+        <div style="padding:20px;background:#080807;">
+          <div style="height:180px;display:flex;align-items:center;justify-content:center;">
+            <div style="width:55%;display:flex;flex-direction:column;gap:8px;">
+              <div class="ph" style="height:24px;"></div>
+              <div class="ph-dark" style="height:10px;"></div>
+              <div class="ph-dark" style="height:10px;width:80%;"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;">
+                <div class="ph-dark" style="height:28px;"></div>
+                <div class="ph-dark" style="height:28px;"></div>
+              </div>
+              <div class="ph-accent" style="height:32px;margin-top:2px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;border-top:1px solid var(--eo-surface-border);">
+          <pre style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);line-height:1.7;overflow-x:auto;">max-width: 480px;
+margin-inline: auto;
+padding-inline: <span style="color:var(--eo-accent)">var(--eo-space-6)</span>;</pre>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Full-bleed + Constrained -->
+    <div class="layout-demo">
+      <div style="padding:16px 24px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:600;font-size:14px;margin-bottom:2px;">Full-Bleed Sections</div>
+          <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Landing page pattern: full width + contained inner</div>
+        </div>
+      </div>
+      <div style="padding:24px;background:#080807;display:flex;flex-direction:column;gap:8px;">
+        <!-- Full-bleed section -->
+        <div style="background:rgba(30,207,163,0.06);border:1px solid rgba(30,207,163,0.15);border-radius:6px;padding:12px 20px;display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);">full-bleed</span>
+          <div style="flex:1;display:grid;grid-template-columns:2fr 1fr;gap:12px;max-width:600px;margin:0 auto;">
+            <div class="ph-dark" style="height:28px;"></div>
+            <div class="ph-accent" style="height:28px;"></div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px 20px;display:flex;align-items:center;gap:12px;">
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);">full-bleed</span>
+          <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:600px;margin:0 auto;">
+            <div class="ph-dark" style="height:28px;"></div>
+            <div class="ph-dark" style="height:28px;"></div>
+            <div class="ph-dark" style="height:28px;"></div>
+          </div>
+        </div>
+        <div style="background:rgba(30,207,163,0.03);border:1px dashed rgba(30,207,163,0.2);border-radius:6px;padding:8px 20px;text-align:center;">
+          <span style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);">.eo-container.eo-container-xl → max 1280px · centered</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 Spacing Reference -->
+  <section style="margin-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+      <span class="label">04 —</span>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;">Spacing Reference</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+
+    <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-2xl);padding:32px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:20px;">
+        <div style="grid-column:1/-1;font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);margin-bottom:4px;">Base unit: 4px · Scale: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96px</div>
+        <div style="grid-column:1/-1;height:1px;background:var(--eo-surface-border);margin-bottom:8px;"></div>
+        <div id="spacing-cells"></div>
+      </div>
+      <div id="spacing-grid" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<script>
+// Spacing reference cells
+const spacingData = [
+  { token: '--eo-space-1',  px: 4 },
+  { token: '--eo-space-2',  px: 8 },
+  { token: '--eo-space-3',  px: 12 },
+  { token: '--eo-space-4',  px: 16 },
+  { token: '--eo-space-5',  px: 20 },
+  { token: '--eo-space-6',  px: 24 },
+  { token: '--eo-space-8',  px: 32 },
+  { token: '--eo-space-10', px: 40 },
+  { token: '--eo-space-12', px: 48 },
+  { token: '--eo-space-16', px: 64 },
+  { token: '--eo-space-20', px: 80 },
+  { token: '--eo-space-24', px: 96 },
+];
+
+const grid = document.getElementById('spacing-grid');
+spacingData.forEach(s => {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:180px 1fr 60px;align-items:center;gap:16px;';
+  row.innerHTML = `
+    <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-accent);">${s.token}</span>
+    <div style="height:12px;background:linear-gradient(90deg,#1ecfa3,rgba(30,207,163,0.2));border-radius:3px;width:${Math.min(s.px*5,100)}%;box-shadow:0 0 6px rgba(30,207,163,0.3);"></div>
+    <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-secondary);text-align:right;">${s.px}px</span>
+  `;
+  grid.appendChild(row);
+});
+
+// Remove placeholder cell
+document.getElementById('spacing-cells').remove();
+</script>
+
+</body>
+</html>

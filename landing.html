@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Landing Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --jade:#1ecfa3;--jade-l:#52e2bc;--jade-d:#0fb389;
+  --bg:#0d0d0b;--s1:#131311;--s2:#1a1a17;--s3:#222220;
+  --b:rgba(255,255,255,0.07);
+  --t1:#fff;--t2:#9b9a91;--t3:#6e6d63;
+  --fd:'Space Grotesk',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:#2e2d28;border-radius:3px}
+::selection{background:rgba(30,207,163,0.25);color:#fff}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(30,207,163,0.4)}100%{box-shadow:0 0 0 20px rgba(30,207,163,0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes count-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── Logo ─────────────────────────────────────── */
+function Logo({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
+      <defs>
+        <linearGradient id="lg" x1="2" y1="2" x2="78" y2="78">
+          <stop offset="0%" stopColor="#52e2bc"/>
+          <stop offset="100%" stopColor="#1ecfa3"/>
+        </linearGradient>
+      </defs>
+      <circle cx="40" cy="40" r="38" stroke="url(#lg)" strokeWidth="2"/>
+      <path d="M26 28L40 20L54 28L54 52L40 60L26 52Z" fill="#1ecfa3" opacity="0.12"/>
+      <path d="M40 20L54 28L54 52" stroke="#1ecfa3" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M26 28L40 20" stroke="#52e2bc" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+      <line x1="40" y1="28" x2="40" y2="36" stroke="#8eefd4" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+/* ── Nav ──────────────────────────────────────── */
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      transition: 'all 0.3s',
+      background: scrolled ? 'rgba(13,13,11,0.9)' : 'transparent',
+      backdropFilter: scrolled ? 'blur(20px)' : 'none',
+      borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : 'none',
+      padding: '0 60px', height: '68px',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Logo size={32} />
+        <span style={{ fontWeight: 700, fontSize: '16px', letterSpacing: '-0.02em' }}>EurekaOrange</span>
+      </div>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        {['Features','Pricing','Docs','Blog'].map(item => (
+          <a key={item} href="#" style={{ padding: '7px 16px', borderRadius: '8px', color: 'var(--t2)', fontWeight: 500, fontSize: '14px', textDecoration: 'none', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--t2)'}
+          >{item}</a>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <a href="#" style={{ color: 'var(--t2)', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}>Sign in</a>
+        <a href="#" style={{ background: 'var(--jade)', color: '#0d0d0b', fontWeight: 700, fontSize: '14px', padding: '9px 20px', borderRadius: '9px', textDecoration: 'none', transition: 'all 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--jade-l)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--jade)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+        >Get started →</a>
+      </div>
+    </nav>
+  );
+}
+
+/* ── Hero ─────────────────────────────────────── */
+function Hero() {
+  return (
+    <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '120px 60px 80px' }}>
+      {/* BG effects */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 50% at 50% 20%, rgba(30,207,163,0.09) 0%, transparent 60%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)', backgroundSize: '72px 72px', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '20%', left: '10%', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,207,163,0.06) 0%, transparent 70%)', animation: 'float 8s ease-in-out infinite', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '25%', right: '8%', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%)', animation: 'float 10s ease-in-out infinite 2s', pointerEvents: 'none' }} />
+
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, maxWidth: '860px' }}>
+        {/* Badge */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(30,207,163,0.1)', border: '1px solid rgba(30,207,163,0.25)', borderRadius: '999px', padding: '6px 16px', marginBottom: '32px', animation: 'fade-up 0.6s both' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--jade)', animation: 'pulse-ring 2s infinite' }} />
+          <span style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--jade)', letterSpacing: '0.06em' }}>v1.0 — Design System Live</span>
+        </div>
+
+        {/* Headline */}
+        <h1 style={{ fontWeight: 700, fontSize: 'clamp(48px,7vw,88px)', letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: '28px', animation: 'fade-up 0.6s 0.1s both' }}>
+          Design systems<br />
+          <span style={{ background: 'linear-gradient(135deg, #8eefd4 0%, #1ecfa3 40%, #0fb389 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>built to scale.</span>
+        </h1>
+
+        {/* Subhead */}
+        <p style={{ fontSize: '18px', color: 'var(--t2)', lineHeight: 1.75, maxWidth: '560px', margin: '0 auto 48px', animation: 'fade-up 0.6s 0.2s both' }}>
+          複数プロダクト横断で使えるトークンベースのデザインシステム。一貫したUI/UXをチーム全体で素早く構築できます。
+        </p>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '72px', flexWrap: 'wrap', animation: 'fade-up 0.6s 0.3s both' }}>
+          <a href="#features" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--jade)', color: '#0d0d0b', fontWeight: 700, fontSize: '15px', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.2s', boxShadow: '0 0 40px rgba(30,207,163,0.3)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--jade-l)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--jade)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            Start building →
+          </a>
+          <a href="EurekaOrange Design System.html" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--t1)', fontWeight: 500, fontSize: '15px', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(30,207,163,0.4)'; e.currentTarget.style.color = 'var(--jade)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'var(--t1)'; }}
+          >
+            View Design System
+          </a>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: '48px', justifyContent: 'center', animation: 'fade-up 0.6s 0.4s both', flexWrap: 'wrap' }}>
+          {[
+            { n: '614+', label: 'Design tokens' },
+            { n: '56',   label: 'Duotone icons' },
+            { n: '48',   label: 'Components' },
+            { n: '2',    label: 'Theme modes' },
+          ].map(s => (
+            <div key={s.label} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #fff 0%, var(--jade-l) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.n}</div>
+              <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', letterSpacing: '0.08em', marginTop: '4px' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Features ─────────────────────────────────── */
+const FEATURES = [
+  { icon: '⬡', title: 'Token-first', body: 'カラー・タイポグラフィ・スペーシングをすべてCSS Custom Propertiesとして管理。テーマ変更が1行で完了。' },
+  { icon: '🌙', title: 'Dark & Light', body: 'セマンティックトークンでダーク/ライト両対応。prefers-color-schemeも自動追従。' },
+  { icon: '⚡', title: 'Motion Ready', body: '5段階のDuration + 5種のEasingで統一されたアニメーション体験を全プロダクトに展開。' },
+  { icon: '✦', title: 'Duotone Icons', body: '56個のDuotoneアイコン。プライマリ/セカンダリカラーを自由に変更できるSVGフォーマット。' },
+  { icon: '◈', title: 'Figma Ready', body: 'Figma Variables形式でエクスポート可能。デザイナーとエンジニアのワークフローを統一。' },
+  { icon: '◎', title: 'Accessible', body: 'WCAG AA準拠のコントラスト比設計。reduced-motion対応で、すべてのユーザーに配慮。' },
+];
+
+function Features() {
+  return (
+    <section id="features" style={{ padding: '120px 60px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '72px' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>What's included</div>
+        <h2 style={{ fontWeight: 700, fontSize: '48px', letterSpacing: '-0.03em', marginBottom: '16px', lineHeight: 1.05 }}>Everything you need<br />to ship faster.</h2>
+        <p style={{ color: 'var(--t2)', fontSize: '16px', maxWidth: '480px', margin: '0 auto' }}>デザインシステムの全要素がひとつのパッケージに。</p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', maxWidth: '1080px', margin: '0 auto' }}>
+        {FEATURES.map((f, i) => (
+          <div key={f.title} style={{
+            background: 'var(--s2)', border: '1px solid var(--b)',
+            borderRadius: '20px', padding: '32px',
+            transition: 'all 0.25s', cursor: 'default',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(30,207,163,0.3)'; e.currentTarget.style.background = 'rgba(30,207,163,0.04)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--b)'; e.currentTarget.style.background = 'var(--s2)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <div style={{ fontSize: '28px', marginBottom: '16px', display: 'block' }}>{f.icon}</div>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '10px', letterSpacing: '-0.01em' }}>{f.title}</h3>
+            <p style={{ fontSize: '14px', color: 'var(--t2)', lineHeight: 1.75 }}>{f.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Token showcase ───────────────────────────── */
+function TokenShowcase() {
+  const tokens = [
+    { name: '--eo-jade-400', value: '#1ecfa3', swatch: true },
+    { name: '--eo-jade-300', value: '#52e2bc', swatch: true },
+    { name: '--eo-jade-500', value: '#0fb389', swatch: true },
+    { name: '--duration-fast', value: '150ms' },
+    { name: '--ease-spring', value: 'cubic-bezier(0.34,1.56,0.64,1)' },
+    { name: '--space-4', value: '16px' },
+  ];
+  return (
+    <section style={{ padding: '0 60px 120px' }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Token system</div>
+          <h2 style={{ fontWeight: 700, fontSize: '40px', letterSpacing: '-0.03em', marginBottom: '20px', lineHeight: 1.1 }}>
+            一行の変数が<br />
+            <span style={{ background: 'linear-gradient(135deg, #52e2bc, #1ecfa3)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>すべてを変える。</span>
+          </h2>
+          <p style={{ color: 'var(--t2)', fontSize: '15px', lineHeight: 1.75, marginBottom: '28px' }}>
+            デザイントークンは単なる色の名前リストではありません。プロダクト全体の「決断の記録」です。一箇所を変えれば、すべてが追従します。
+          </p>
+          <a href="tokens.html" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--jade)', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+            全トークンを見る →
+          </a>
+        </div>
+        <div style={{ background: '#080807', border: '1px solid var(--b)', borderRadius: '20px', overflow: 'hidden' }}>
+          <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--b)', display: 'flex', gap: '6px', alignItems: 'center' }}>
+            {['#ef4444','#f59e0b','#22c55e'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+            <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', marginLeft: '8px' }}>eureka-tokens.css</span>
+          </div>
+          {tokens.map((t, i) => (
+            <div key={t.name} style={{ padding: '12px 20px', borderBottom: i < tokens.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {t.swatch && <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: t.value, flexShrink: 0 }} />}
+              <span style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--jade)', flex: 1 }}>{t.name}:</span>
+              <span style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t2)' }}>{t.value};</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Pricing ──────────────────────────────────── */
+const PLANS = [
+  { name: 'Free', price: '¥0', period: '/月', desc: '個人プロジェクトや学習用', features: ['3プロジェクトまで', 'コアトークン一式', 'ダークモードのみ', 'コミュニティサポート'], cta: '無料で始める', highlight: false },
+  { name: 'Pro', price: '¥1,480', period: '/月', desc: 'プロのデザイナー・エンジニア向け', features: ['無制限プロジェクト', '全トークン + 56アイコン', 'ダーク & ライトモード', 'Figma変数エクスポート', 'モーションガイドライン', '優先サポート'], cta: 'Pro を始める', highlight: true },
+  { name: 'Team', price: '¥4,800', period: '/月', desc: 'チーム・スタートアップ向け', features: ['10シートまで', '全機能 + カスタムトークン', 'ブランドカラー設定', 'Figma / CSS / JSON出力', 'Slackサポート', 'オンボーディング'], cta: 'Team を始める', highlight: false },
+];
+
+function Pricing() {
+  return (
+    <section id="pricing" style={{ padding: '0 60px 120px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>Pricing</div>
+        <h2 style={{ fontWeight: 700, fontSize: '48px', letterSpacing: '-0.03em', lineHeight: 1.05 }}>シンプルな料金プラン</h2>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', maxWidth: '960px', margin: '0 auto' }}>
+        {PLANS.map(plan => (
+          <div key={plan.name} style={{
+            background: plan.highlight ? 'rgba(30,207,163,0.05)' : 'var(--s2)',
+            border: `1px solid ${plan.highlight ? 'rgba(30,207,163,0.35)' : 'var(--b)'}`,
+            borderRadius: '24px', padding: '36px',
+            position: 'relative', overflow: 'hidden',
+            boxShadow: plan.highlight ? '0 0 60px rgba(30,207,163,0.1)' : 'none',
+          }}>
+            {plan.highlight && (
+              <div style={{ position: 'absolute', top: '20px', right: '20px', background: 'var(--jade)', color: '#0d0d0b', fontFamily: 'var(--fm)', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', letterSpacing: '0.06em' }}>
+                POPULAR
+              </div>
+            )}
+            <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '8px' }}>{plan.name}</div>
+            <div style={{ marginBottom: '8px' }}>
+              <span style={{ fontWeight: 700, fontSize: '36px', letterSpacing: '-0.03em' }}>{plan.price}</span>
+              <span style={{ color: 'var(--t3)', fontSize: '14px' }}>{plan.period}</span>
+            </div>
+            <div style={{ color: 'var(--t3)', fontSize: '13px', marginBottom: '28px', lineHeight: 1.5 }}>{plan.desc}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+              {plan.features.map(f => (
+                <div key={f} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '13px' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: '1px' }}>
+                    <circle cx="12" cy="12" r="10" fill="rgba(30,207,163,0.15)"/>
+                    <path d="M8 12l3 3 5-5" stroke="#1ecfa3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span style={{ color: 'var(--t2)' }}>{f}</span>
+                </div>
+              ))}
+            </div>
+            <a href="#" style={{
+              display: 'block', textAlign: 'center',
+              background: plan.highlight ? 'var(--jade)' : 'rgba(255,255,255,0.06)',
+              color: plan.highlight ? '#0d0d0b' : 'var(--t1)',
+              border: plan.highlight ? 'none' : '1px solid var(--b)',
+              fontWeight: 700, fontSize: '14px', padding: '12px',
+              borderRadius: '10px', textDecoration: 'none',
+              transition: 'all 0.2s',
+            }}>{plan.cta}</a>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Social proof ─────────────────────────────── */
+function SocialProof() {
+  const logos = ['Aurora', 'Prism', 'Orbit', 'Nexus', 'Echo', 'Pulse'];
+  return (
+    <section style={{ padding: '0 60px 120px', borderTop: '1px solid var(--b)' }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px', paddingTop: '80px' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t3)', letterSpacing: '0.1em' }}>導入プロダクト</div>
+      </div>
+      <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '800px', margin: '0 auto' }}>
+        {logos.map(name => (
+          <div key={name} style={{ fontFamily: 'var(--fd)', fontWeight: 700, fontSize: '18px', color: 'rgba(255,255,255,0.2)', letterSpacing: '-0.02em' }}>{name}</div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── CTA ──────────────────────────────────────── */
+function CTA() {
+  return (
+    <section style={{ padding: '0 60px 120px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', background: 'linear-gradient(135deg, rgba(30,207,163,0.08) 0%, rgba(30,207,163,0.03) 100%)', border: '1px solid rgba(30,207,163,0.2)', borderRadius: '32px', padding: '80px 60px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,207,163,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '20px' }}>Ready to ship?</div>
+        <h2 style={{ fontWeight: 700, fontSize: '44px', letterSpacing: '-0.03em', marginBottom: '16px', lineHeight: 1.1 }}>
+          今すぐ<br />
+          <span style={{ background: 'linear-gradient(135deg, #52e2bc, #1ecfa3)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>構築を始めよう。</span>
+        </h2>
+        <p style={{ color: 'var(--t2)', fontSize: '15px', marginBottom: '36px' }}>無料で始められます。クレジットカード不要。</p>
+        <a href="#" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--jade)', color: '#0d0d0b', fontWeight: 700, fontSize: '15px', padding: '14px 36px', borderRadius: '10px', textDecoration: 'none', boxShadow: '0 0 40px rgba(30,207,163,0.3)', transition: 'all 0.2s' }}>
+          無料で始める →
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/* ── Footer ───────────────────────────────────── */
+function Footer() {
+  return (
+    <footer style={{ borderTop: '1px solid var(--b)', padding: '40px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Logo size={24} />
+        <span style={{ fontWeight: 700, fontSize: '14px' }}>EurekaOrange</span>
+        <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>Design System v1.0</span>
+      </div>
+      <div style={{ display: 'flex', gap: '24px' }}>
+        {['Design System', 'Components', 'Tokens', 'Motion', 'Icons'].map(l => (
+          <a key={l} href="#" style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t3)', textDecoration: 'none', transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--jade)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--t3)'}
+          >{l}</a>
+        ))}
+      </div>
+      <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t4)' }}>© 2025 EurekaOrange</div>
+    </footer>
+  );
+}
+
+/* ── App ──────────────────────────────────────── */
+function App() {
+  return (
+    <>
+      <Nav />
+      <Hero />
+      <Features />
+      <TokenShowcase />
+      <Pricing />
+      <SocialProof />
+      <CTA />
+      <Footer />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

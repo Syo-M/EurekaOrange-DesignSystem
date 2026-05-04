@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Motion Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --jade: #1ecfa3; --jade-l: #52e2bc; --jade-d: #0fb389;
+  --bg: #0d0d0b; --surface: #131311; --raised: #1a1a17; --overlay: #222220;
+  --border: rgba(255,255,255,0.07);
+  --t1: #ffffff; --t2: #9b9a91; --t3: #6e6d63; --t4: #484740;
+  --fd: 'Space Grotesk', sans-serif; --fm: 'DM Mono', monospace;
+}
+body { font-family: var(--fd); background: var(--bg); color: var(--t1); min-height: 100vh; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: #2e2d28; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--jade); }
+::selection { background: rgba(30,207,163,0.25); color: #fff; }
+
+/* ── Demo animations ── */
+@keyframes eo-bounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+@keyframes eo-elastic  { 0%{transform:scale(0.5) rotate(-10deg);opacity:0} 60%{transform:scale(1.08) rotate(2deg)} 80%{transform:scale(0.96) rotate(-1deg)} 100%{transform:scale(1) rotate(0deg);opacity:1} }
+@keyframes eo-slide-up { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes eo-fade-blur{ from{opacity:0;filter:blur(6px)} to{opacity:1;filter:blur(0)} }
+@keyframes eo-spin     { to{transform:rotate(360deg)} }
+@keyframes eo-pulse    { 0%,100%{box-shadow:0 0 0 0 rgba(30,207,163,0.5)} 50%{box-shadow:0 0 0 12px rgba(30,207,163,0)} }
+@keyframes eo-shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+@keyframes eo-morph    { 0%,100%{border-radius:50%} 50%{border-radius:8px} }
+@keyframes eo-ripple   { from{transform:scale(0);opacity:0.5} to{transform:scale(4);opacity:0} }
+@keyframes eo-type     { from{width:0} to{width:100%} }
+@keyframes eo-blink    { 50%{opacity:0} }
+@keyframes eo-float    { 0%,100%{transform:translateY(0px) rotate(0deg)} 33%{transform:translateY(-10px) rotate(2deg)} 66%{transform:translateY(-5px) rotate(-1deg)} }
+@keyframes eo-count    { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ── Token data ─────────────────────────────────────────────── */
+const DURATION = [
+  { token: '--duration-instant', value: '80ms',  use: 'Icon state, focus ring' },
+  { token: '--duration-fast',    value: '150ms', use: 'Button hover, toggle' },
+  { token: '--duration-normal',  value: '220ms', use: 'Panel reveal, dropdown' },
+  { token: '--duration-slow',    value: '350ms', use: 'Page transition, modal' },
+  { token: '--duration-crawl',   value: '500ms', use: 'Hero entrance, loading' },
+];
+
+const EASING = [
+  { token: '--ease-out',      value: 'cubic-bezier(0.16, 1, 0.3, 1)',      label: 'Ease Out (default)',   desc: '最もよく使うイージング。入力への応答、要素の表示。' },
+  { token: '--ease-in-out',   value: 'cubic-bezier(0.45, 0, 0.55, 1)',     label: 'Ease In-Out',         desc: '要素の移動・スライド。中間が速く両端が遅い。' },
+  { token: '--ease-spring',   value: 'cubic-bezier(0.34, 1.56, 0.64, 1)',  label: 'Spring (overshoot)',  desc: '少しバウンドする弾力感。ダイアログ・通知の登場。' },
+  { token: '--ease-in',       value: 'cubic-bezier(0.4, 0, 1, 1)',         label: 'Ease In (exit)',      desc: '要素の退場・非表示専用。入場には使わない。' },
+  { token: '--ease-linear',   value: 'linear',                             label: 'Linear',              desc: '回転・ゲージ・進捗バーなど連続的な動き。' },
+];
+
+const PRINCIPLES = [
+  { icon: '⚡', title: 'Purposeful', ja: '目的を持つ', body: 'すべてのアニメーションには理由がある。単なる装飾は省く。状態変化・関係性・フィードバックを伝えるためだけに動かす。' },
+  { icon: '🏎', title: 'Fast by default', ja: '速さが基本', body: 'UIアニメーションは150〜220msが黄金律。遅すぎるアニメーションはプロダクトを重く感じさせる。迷ったら速くする。' },
+  { icon: '🎯', title: 'Ease out always', ja: '常にEase Out', body: '要素の登場はEase Outが原則。自然界の動き——投げたボールが減速して止まる——と一致し、最も直感的に見える。' },
+  { icon: '♿', title: 'Respect reduced motion', ja: 'モーション削減を尊重', body: 'prefers-reduced-motion を必ず対応。EpilepsyやVestibular disorderのユーザーに配慮し、動きを最小化または無効化する。' },
+];
+
+/* ── Easing visualizer ──────────────────────────────────────── */
+function EasingCurve({ value, size = 100 }) {
+  const canvas = useRef(null);
+  useEffect(() => {
+    const ctx = canvas.current?.getContext('2d');
+    if (!ctx) return;
+    const s = size;
+    ctx.clearRect(0, 0, s, s);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      ctx.beginPath(); ctx.moveTo(i * s/4, 0); ctx.lineTo(i * s/4, s); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * s/4); ctx.lineTo(s, i * s/4); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(0, s); ctx.lineTo(s, 0); ctx.stroke();
+    ctx.setLineDash([]);
+
+    const bezierPoints = {
+      'cubic-bezier(0.16, 1, 0.3, 1)':     [0.16,1,0.3,1],
+      'cubic-bezier(0.45, 0, 0.55, 1)':    [0.45,0,0.55,1],
+      'cubic-bezier(0.34, 1.56, 0.64, 1)': [0.34,1.56,0.64,1],
+      'cubic-bezier(0.4, 0, 1, 1)':         [0.4,0,1,1],
+      'linear':                              null,
+    };
+
+    const pts = bezierPoints[value];
+    ctx.strokeStyle = '#1ecfa3';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (!pts) {
+      ctx.moveTo(0, s); ctx.lineTo(s, 0);
+    } else {
+      ctx.moveTo(0, s);
+      ctx.bezierCurveTo(pts[0]*s, s - pts[1]*s, pts[2]*s, s - pts[3]*s, s, 0);
+    }
+    ctx.stroke();
+
+    // control points
+    if (pts) {
+      [[pts[0],pts[1]],[pts[2],pts[3]]].forEach(([x,y]) => {
+        ctx.fillStyle = 'rgba(30,207,163,0.5)';
+        ctx.beginPath(); ctx.arc(x*s, s - y*s, 3.5, 0, Math.PI*2); ctx.fill();
+      });
+    }
+  }, [value, size]);
+
+  return <canvas ref={canvas} width={size} height={size} style={{ display: 'block' }} />;
+}
+
+/* ── Live animation demo ────────────────────────────────────── */
+function AnimDemo({ name, animName, dur, ease, children }) {
+  const [playing, setPlaying] = useState(false);
+  const [key, setKey] = useState(0);
+  const play = () => { setKey(k => k+1); setPlaying(true); setTimeout(() => setPlaying(false), (parseInt(dur)||300) + 100); };
+  return (
+    <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden' }}>
+      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '120px', position: 'relative' }}>
+        <div key={key} style={playing ? { animation: `${animName} ${dur} ${ease} both` } : {}}>
+          {children}
+        </div>
+      </div>
+      <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: '13px', fontWeight: 600 }}>{name}</div>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: 'var(--t3)', marginTop: '2px' }}>{dur} · {ease.split('(')[0]}</div>
+        </div>
+        <button onClick={play} style={{ width: '32px', height: '32px', borderRadius: '50%', background: playing ? 'rgba(30,207,163,0.1)' : 'var(--jade)', border: playing ? '1px solid rgba(30,207,163,0.3)' : 'none', color: playing ? 'var(--jade)' : '#0d0d0b', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {playing ? '●' : '▶'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Transition demo ────────────────────────────────────────── */
+function TransitionDemo() {
+  const [active, setActive] = useState(false);
+  const [tab, setTab] = useState(0);
+  const [toggled, setToggled] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' }}>
+      {/* Button hover */}
+      <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>// Button hover · 150ms ease-out</div>
+        <button
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            padding: '12px 28px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+            background: hovered ? 'var(--jade-l)' : 'var(--jade)',
+            color: '#0d0d0b', fontFamily: 'var(--fd)', fontWeight: 600, fontSize: '14px',
+            transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hovered ? '0 8px 24px rgba(30,207,163,0.4)' : '0 0 0 rgba(30,207,163,0)',
+            transition: 'all 150ms cubic-bezier(0.16,1,0.3,1)',
+          }}>
+          Hover me
+        </button>
+      </div>
+
+      {/* Toggle */}
+      <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>// Toggle · 220ms spring</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div onClick={() => setToggled(!toggled)} style={{
+            width: '52px', height: '28px', borderRadius: '14px', cursor: 'pointer',
+            background: toggled ? 'var(--jade)' : 'var(--overlay)',
+            border: `1px solid ${toggled ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
+            position: 'relative', transition: 'background 220ms cubic-bezier(0.16,1,0.3,1)',
+            boxShadow: toggled ? '0 0 16px rgba(30,207,163,0.4)' : 'none',
+          }}>
+            <div style={{
+              position: 'absolute', top: '4px', left: toggled ? '28px' : '4px',
+              width: '18px', height: '18px', borderRadius: '50%', background: '#fff',
+              transition: 'left 220ms cubic-bezier(0.34,1.56,0.64,1)',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+            }} />
+          </div>
+          <span style={{ fontSize: '14px', color: toggled ? 'var(--jade)' : 'var(--t3)' }}>
+            {toggled ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
+      </div>
+
+      {/* Expanding card */}
+      <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', gridColumn: '1/-1' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', marginBottom: '16px' }}>// Expand / Collapse · 350ms ease-in-out</div>
+        <div style={{
+          background: active ? 'rgba(30,207,163,0.06)' : 'rgba(255,255,255,0.02)',
+          border: `1px solid ${active ? 'rgba(30,207,163,0.25)' : 'rgba(255,255,255,0.07)'}`,
+          borderRadius: '12px', overflow: 'hidden',
+          transition: 'border-color 350ms cubic-bezier(0.45,0,0.55,1), background 350ms',
+        }}>
+          <div onClick={() => setActive(!active)} style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+            <div style={{ fontWeight: 600, fontSize: '14px' }}>EurekaOrange Motion System</div>
+            <div style={{ transform: active ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 350ms cubic-bezier(0.45,0,0.55,1)', color: active ? 'var(--jade)' : 'var(--t3)' }}>
+              ▾
+            </div>
+          </div>
+          <div style={{ maxHeight: active ? '200px' : '0', overflow: 'hidden', transition: 'max-height 350ms cubic-bezier(0.45,0,0.55,1)' }}>
+            <div style={{ padding: '0 20px 20px', fontSize: '14px', color: 'var(--t2)', lineHeight: 1.7 }}>
+              モーションシステムは「速さ優先・目的明確・アクセシブル」の3原則で設計されています。Duration・Easing・Propertyの組み合わせで、一貫した動きの語彙をプロダクト全体に適用します。prefers-reduced-motionに対応し、アニメーションを無効にできます。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab transition */}
+      <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', gridColumn: '1/-1' }}>
+        <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', marginBottom: '16px' }}>// Tab indicator · 220ms spring</div>
+        <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', position: 'relative', marginBottom: '20px' }}>
+          {['Overview','Design','Engineering','Tokens'].map((t, i) => (
+            <button key={t} onClick={() => setTab(i)} style={{
+              padding: '10px 20px', border: 'none', background: 'none', cursor: 'pointer',
+              fontFamily: 'var(--fd)', fontSize: '13px', fontWeight: tab === i ? 600 : 400,
+              color: tab === i ? 'var(--jade)' : 'var(--t3)',
+              borderBottom: `2px solid ${tab === i ? 'var(--jade)' : 'transparent'}`,
+              marginBottom: '-1px',
+              transition: 'color 220ms cubic-bezier(0.34,1.56,0.64,1), border-color 220ms',
+            }}>{t}</button>
+          ))}
+        </div>
+        <div style={{ fontSize: '14px', color: 'var(--t2)', animation: 'eo-slide-up 220ms cubic-bezier(0.16,1,0.3,1) both' }} key={tab}>
+          {['概要・ブランドビジョン・デザイン原則を定義するセクションです。','カラー・タイポグラフィ・コンポーネントのビジュアル仕様。','トークン実装・API仕様・フレームワーク対応ガイド。','CSS Custom Properties・JSON・Figma Variables の全トークン一覧。'][tab]}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Reduced motion section ─────────────────────────────────── */
+function ReducedMotionSection() {
+  return (
+    <div style={{ background: 'rgba(168,85,247,0.07)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: '16px', padding: '28px' }}>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(168,85,247,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '18px' }}>♿</div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>prefers-reduced-motion</div>
+          <div style={{ fontSize: '14px', color: '#9b9a91', lineHeight: 1.6 }}>OSの「視差効果を減らす」設定を検出。対象ユーザー：てんかん、前庭障害、乗り物酔いしやすい方。</div>
+        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: '#c084fc', marginBottom: '10px' }}>✓ DO — CSS</div>
+          <pre style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: '#c8c7c0', background: '#080807', padding: '16px', borderRadius: '10px', lineHeight: 1.7, overflow: 'auto', border: '1px solid rgba(255,255,255,0.06)' }}>{`@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}`}</pre>
+        </div>
+        <div>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: '#c084fc', marginBottom: '10px' }}>✓ DO — React Hook</div>
+          <pre style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: '#c8c7c0', background: '#080807', padding: '16px', borderRadius: '10px', lineHeight: 1.7, overflow: 'auto', border: '1px solid rgba(255,255,255,0.06)' }}>{`function useReducedMotion() {
+  const [reduced, setReduced] =
+    useState(false);
+  useEffect(() => {
+    const mq = matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    );
+    setReduced(mq.matches);
+    mq.addEventListener('change', e =>
+      setReduced(e.matches));
+  }, []);
+  return reduced;
+}`}</pre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Section label ──────────────────────────────────────────── */
+function SL({ num, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
+      <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)' }}>{num} —</span>
+      <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{children}</span>
+      <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+    </div>
+  );
+}
+
+/* ── App ────────────────────────────────────────────────────── */
+function App() {
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      {/* Nav */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(13,13,11,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)', padding: '0 40px', height: '56px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <a href="EurekaOrange Design System.html" style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t3)', textDecoration: 'none' }}>← Design System</a>
+        <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
+        <span style={{ fontWeight: 600, fontSize: '14px' }}>Motion Principles</span>
+      </div>
+
+      <div style={{ padding: '56px 80px 120px', maxWidth: '1100px', margin: '0 auto' }}>
+        {/* Hero */}
+        <div style={{ marginBottom: '72px' }}>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'inline-block', width: '28px', height: '1px', background: 'var(--jade)' }} />
+            Motion Design System
+          </div>
+          <h1 style={{ fontWeight: 700, fontSize: '56px', letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: '20px' }}>
+            Motion<br />
+            <span style={{ background: 'linear-gradient(135deg, #52e2bc, #1ecfa3, #0fb389)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Principles.</span>
+          </h1>
+          <p style={{ color: 'var(--t2)', fontSize: '17px', lineHeight: 1.7, maxWidth: '520px' }}>
+            UIに命を吹き込む動きの文法。Duration・Easing・Principleの体系がEurekaOrangeプロダクト全体の動きを統一します。
+          </p>
+        </div>
+
+        {/* 01 Principles */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="01">Core Principles</SL>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' }}>
+            {PRINCIPLES.map(p => (
+              <div key={p.title} style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '16px', padding: '28px' }}>
+                <div style={{ fontSize: '28px', marginBottom: '14px' }}>{p.icon}</div>
+                <div style={{ fontWeight: 700, fontSize: '18px', letterSpacing: '-0.02em', marginBottom: '4px' }}>{p.title}</div>
+                <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', marginBottom: '12px', letterSpacing: '0.06em' }}>{p.ja}</div>
+                <div style={{ fontSize: '14px', color: 'var(--t2)', lineHeight: 1.75 }}>{p.body}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 02 Duration */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="02">Duration Scale</SL>
+          <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+            {DURATION.map((d, i) => (
+              <div key={d.token} style={{ display: 'grid', gridTemplateColumns: '220px 1fr auto', alignItems: 'center', gap: '20px', padding: '18px 28px', borderBottom: i < DURATION.length-1 ? '1px solid var(--border)' : 'none' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--jade)', marginBottom: '3px' }}>{d.token}</div>
+                  <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t4)' }}>{d.use}</div>
+                </div>
+                {/* Animated bar */}
+                <div style={{ height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', background: 'var(--jade)',
+                    borderRadius: '3px',
+                    animation: `eo-type ${d.value} cubic-bezier(0.16,1,0.3,1) infinite alternate`,
+                    boxShadow: '0 0 8px rgba(30,207,163,0.5)',
+                  }} />
+                </div>
+                <div style={{ fontFamily: 'var(--fm)', fontSize: '20px', fontWeight: 700, color: 'var(--t1)', letterSpacing: '-0.03em', textAlign: 'right', minWidth: '72px' }}>{d.value}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 03 Easing */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="03">Easing Curves</SL>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {EASING.map(e => (
+              <div key={e.token} style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', display: 'grid', gridTemplateColumns: '100px 1fr auto', gap: '24px', alignItems: 'center' }}>
+                <EasingCurve value={e.value} size={100} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '16px', marginBottom: '6px' }}>{e.label}</div>
+                  <div style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--jade)', marginBottom: '8px' }}>{e.token}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--t2)', lineHeight: 1.6 }}>{e.desc}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t4)', background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', whiteSpace: 'nowrap', maxWidth: '220px', wordBreak: 'break-all', lineHeight: 1.6 }}>{e.value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 04 Animation demos */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="04">Animation Demos</SL>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginBottom: '24px' }}>
+            <AnimDemo name="Elastic Enter" animName="eo-elastic" dur="500ms" ease="cubic-bezier(0.34,1.56,0.64,1)">
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--jade)', boxShadow: '0 0 20px rgba(30,207,163,0.4)' }} />
+            </AnimDemo>
+            <AnimDemo name="Slide Up" animName="eo-slide-up" dur="300ms" ease="cubic-bezier(0.16,1,0.3,1)">
+              <div style={{ padding: '12px 20px', background: 'var(--overlay)', border: '1px solid var(--border)', borderRadius: '10px', fontSize: '13px' }}>Card appears</div>
+            </AnimDemo>
+            <AnimDemo name="Fade + Blur" animName="eo-fade-blur" dur="400ms" ease="cubic-bezier(0.16,1,0.3,1)">
+              <div style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.03em', color: 'var(--jade)' }}>Eureka!</div>
+            </AnimDemo>
+            <AnimDemo name="Pulse Glow" animName="eo-pulse" dur="1s" ease="ease-in-out">
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--jade)' }} />
+            </AnimDemo>
+            <AnimDemo name="Morph" animName="eo-morph" dur="800ms" ease="cubic-bezier(0.45,0,0.55,1)">
+              <div style={{ width: '44px', height: '44px', background: 'var(--jade)', opacity: 0.8 }} />
+            </AnimDemo>
+            <AnimDemo name="Float" animName="eo-float" dur="3s" ease="ease-in-out">
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--jade), var(--jade-d))', boxShadow: '0 8px 24px rgba(30,207,163,0.3)' }} />
+            </AnimDemo>
+          </div>
+
+          {/* Typewriter */}
+          <div style={{ background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '14px', padding: '28px' }}>
+            <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)', marginBottom: '16px' }}>// Typewriter · overflow hidden + width animation</div>
+            <div style={{ fontFamily: 'var(--fm)', fontSize: '22px', fontWeight: 500, color: 'var(--jade)', overflow: 'hidden', whiteSpace: 'nowrap', width: '0', animation: 'eo-type 2s steps(28) infinite alternate' }}>
+              const eureka = 'discovery';
+            </div>
+            <div style={{ display: 'inline-block', width: '2px', height: '24px', background: 'var(--jade)', verticalAlign: 'bottom', animation: 'eo-blink 1s step-end infinite' }} />
+          </div>
+        </section>
+
+        {/* 05 Transition demos */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="05">UI Transitions</SL>
+          <TransitionDemo />
+        </section>
+
+        {/* 06 Reduced motion */}
+        <section style={{ marginBottom: '80px' }}>
+          <SL num="06">Accessibility</SL>
+          <ReducedMotionSection />
+        </section>
+
+        {/* 07 Token export */}
+        <section>
+          <SL num="07">CSS Token Export</SL>
+          <div style={{ background: '#080807', border: '1px solid var(--border)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t4)', marginBottom: '16px' }}>eureka-orange-motion-tokens.css</div>
+            <pre style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: '#c8c7c0', lineHeight: 1.8, overflow: 'auto' }}>{`:root {
+  /* Duration */
+  --duration-instant: 80ms;
+  --duration-fast:    150ms;
+  --duration-normal:  220ms;
+  --duration-slow:    350ms;
+  --duration-crawl:   500ms;
+
+  /* Easing */
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:  cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in:      cubic-bezier(0.4, 0, 1, 1);
+  --ease-linear:  linear;
+
+  /* Shorthand */
+  --transition-fast:   150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow:   350ms cubic-bezier(0.45, 0, 0.55, 1);
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}`}</pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

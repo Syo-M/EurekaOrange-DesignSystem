@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --jade:       #1ecfa3;
+  --jade-light: #52e2bc;
+  --jade-dark:  #0fb389;
+  --jade-glow:  rgba(30,207,163,0.35);
+  --bg:         #0d0d0b;
+  --surface:    #131311;
+  --raised:     #1a1a17;
+  --overlay:    #222220;
+  --border:     rgba(255,255,255,0.07);
+  --text-1:     #ffffff;
+  --text-2:     #9b9a91;
+  --text-3:     #6e6d63;
+  --text-4:     #484740;
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-m: 'DM Mono', monospace;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 20px;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-d); background: var(--bg); color: var(--text-1); min-height: 100vh; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: #2e2d28; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--jade); }
+::selection { background: rgba(30,207,163,0.25); color: #fff; }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar {
+  position: fixed; top: 52px; left: 0; bottom: 0; width: 220px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; z-index: 50;
+  padding: 24px 0;
+}
+.main { margin-left: 220px; padding: 48px 56px 120px; }
+
+/* Section */
+.section { margin-bottom: 80px; }
+.section-label {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Card */
+.card {
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px;
+}
+.card-title {
+  font-family: var(--font-m); font-size: 12px; color: var(--text-3);
+  letter-spacing: 0.06em; margin-bottom: 24px;
+}
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── Design tokens ─────────────────────────────────────────────── */
+const C = {
+  jade:      '#1ecfa3',
+  jadeLight: '#52e2bc',
+  jadeDark:  '#0fb389',
+  jadeGlow:  'rgba(30,207,163,',
+  ink0:  '#ffffff', ink300: '#9b9a91', ink400: '#6e6d63',
+  ink500: '#484740', ink600: '#2e2d28', ink700: '#1c1b18',
+  ink800: '#111110', ink900: '#080807',
+  success: '#22c55e', warning: '#f59e0b', error: '#ef4444', info: '#3b82f6',
+  electric: '#a855f7',
+};
+
+/* ── Utility ───────────────────────────────────────────────────── */
+const NAV_ITEMS = [
+  { id: 'buttons',   label: 'Buttons' },
+  { id: 'forms',     label: 'Forms' },
+  { id: 'modal',     label: 'Modal' },
+  { id: 'table',     label: 'Table' },
+  { id: 'nav',       label: 'Navigation' },
+  { id: 'feedback',  label: 'Feedback' },
+  { id: 'data',      label: 'Data Display' },
+  { id: 'overlays',  label: 'Overlays' },
+  { id: 'tabs',      label: 'Tabs & Aux' },
+  { id: 'display',   label: 'Loading & Display' },
+];
+
+function SectionLabel({ num, children }) {
+  return (
+    <div className="section-label">
+      <span style={{ fontFamily: 'var(--font-m)', fontSize: '11px', color: C.jade, letterSpacing: '0.1em' }}>
+        {num} —
+      </span>
+      <span style={{ fontFamily: 'var(--font-m)', fontSize: '11px', color: C.ink400, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        {children}
+      </span>
+    </div>
+  );
+}
+
+function CardGrid({ cols = 2, children }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '20px' }}>
+      {children}
+    </div>
+  );
+}
+
+/* ── 01 BUTTONS ────────────────────────────────────────────────── */
+function ButtonsSection() {
+  const [loading, setLoading] = useState(false);
+  const triggerLoad = () => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 2000);
+  };
+
+  const btnBase = {
+    fontFamily: 'var(--font-d)', fontSize: '14px', fontWeight: 600,
+    borderRadius: 'var(--r-md)', cursor: 'pointer',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+    transition: 'all 0.18s', border: 'none', outline: 'none',
+  };
+
+  return (
+    <section id="buttons" className="section">
+      <SectionLabel num="01">Buttons</SectionLabel>
+      <CardGrid>
+        {/* Variants */}
+        <div className="card">
+          <div className="card-title">// Variants</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { label: 'Primary',   bg: C.jade,        color: '#0d0d0b',    border: 'none',                        hover: C.jadeLight },
+              { label: 'Secondary', bg: 'transparent', color: C.jade,       border: `1px solid rgba(30,207,163,0.45)`, hover: 'rgba(30,207,163,0.08)' },
+              { label: 'Ghost',     bg: 'rgba(255,255,255,0.05)', color: C.ink300, border: '1px solid var(--border)', hover: 'rgba(255,255,255,0.08)' },
+              { label: 'Danger',    bg: 'rgba(239,68,68,0.10)',   color: '#ef4444', border: '1px solid rgba(239,68,68,0.28)', hover: 'rgba(239,68,68,0.16)' },
+              { label: 'Electric',  bg: 'rgba(168,85,247,0.10)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.28)', hover: 'rgba(168,85,247,0.16)' },
+            ].map(b => (
+              <button key={b.label} style={{ ...btnBase, padding: '10px 20px', background: b.bg, color: b.color, border: b.border, width: '100%', justifyContent: 'space-between' }}
+                onMouseEnter={e => e.currentTarget.style.background = b.hover}
+                onMouseLeave={e => e.currentTarget.style.background = b.bg}>
+                <span>{b.label}</span>
+                <span style={{ fontFamily: 'var(--font-m)', fontSize: '10px', opacity: 0.5 }}>btn-{b.label.toLowerCase()}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sizes + States */}
+        <div className="card">
+          <div className="card-title">// Sizes &amp; States</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Sizes */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {[
+                { label: 'xs', p: '5px 12px', fs: '12px' },
+                { label: 'sm', p: '7px 16px', fs: '13px' },
+                { label: 'md', p: '10px 20px', fs: '14px' },
+                { label: 'lg', p: '13px 28px', fs: '15px' },
+                { label: 'xl', p: '16px 36px', fs: '16px' },
+              ].map(s => (
+                <button key={s.label} style={{ ...btnBase, padding: s.p, fontSize: s.fs, background: C.jade, color: '#0d0d0b' }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Icon button */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button style={{ ...btnBase, padding: '10px 20px', background: C.jade, color: '#0d0d0b' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Download
+              </button>
+              <button style={{ ...btnBase, padding: '10px', background: 'var(--raised)', border: '1px solid var(--border)', color: C.ink300, borderRadius: 'var(--r-md)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </button>
+              <button style={{ ...btnBase, padding: '10px', background: 'var(--raised)', border: '1px solid var(--border)', color: C.ink300, borderRadius: '50%', width: '40px', height: '40px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+
+            {/* Loading state */}
+            <button onClick={triggerLoad} style={{ ...btnBase, padding: '10px 24px', background: loading ? 'var(--raised)' : C.jade, color: loading ? C.jade : '#0d0d0b', border: loading ? `1px solid rgba(30,207,163,0.3)` : 'none', width: '160px' }}>
+              {loading ? (
+                <>
+                  <svg style={{ animation: 'spin 1s linear infinite' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                  </svg>
+                  Loading…
+                </>
+              ) : 'Click to load'}
+            </button>
+
+            {/* Disabled */}
+            <button disabled style={{ ...btnBase, padding: '10px 20px', background: 'var(--raised)', color: C.ink500, border: '1px solid var(--border)', cursor: 'not-allowed', opacity: 0.6 }}>
+              Disabled
+            </button>
+          </div>
+        </div>
+
+        {/* Button group */}
+        <div className="card" style={{ gridColumn: '1 / -1' }}>
+          <div className="card-title">// Button Groups &amp; Segmented Control</div>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            {/* Attached group */}
+            <div style={{ display: 'flex' }}>
+              {['All','Active','Archived'].map((label, i) => {
+                const [sel, setSel] = useState('All');
+                return null; // handled below
+              })}
+            </div>
+            <SegmentedControl options={['All','Active','Archived']} />
+            <SegmentedControl options={['Grid','List','Table']} defaultVal="Grid" />
+            {/* Split button */}
+            <div style={{ display: 'flex' }}>
+              <button style={{ ...btnBase, padding: '10px 20px', background: C.jade, color: '#0d0d0b', borderRadius: '8px 0 0 8px' }}>
+                Publish
+              </button>
+              <button style={{ ...btnBase, padding: '10px 12px', background: C.jadeDark, color: '#0d0d0b', borderRadius: '0 8px 8px 0', borderLeft: '1px solid rgba(0,0,0,0.2)' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </CardGrid>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </section>
+  );
+}
+
+function SegmentedControl({ options, defaultVal }) {
+  const [sel, setSel] = useState(defaultVal || options[0]);
+  return (
+    <div style={{
+      display: 'flex', background: 'var(--raised)',
+      border: '1px solid var(--border)', borderRadius: '10px', padding: '3px', gap: '2px',
+    }}>
+      {options.map(o => (
+        <button key={o} onClick={() => setSel(o)} style={{
+          fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: 500,
+          padding: '7px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+          background: sel === o ? C.jade : 'transparent',
+          color: sel === o ? '#0d0d0b' : C.ink300,
+          transition: 'all 0.18s',
+        }}>{o}</button>
+      ))}
+    </div>
+  );
+}
+
+/* ── 02 FORMS ──────────────────────────────────────────────────── */
+function FormsSection() {
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [select, setSelect] = useState('');
+  const [checked, setChecked] = useState(false);
+  const [radioVal, setRadioVal] = useState('option1');
+  const [range, setRange] = useState(50);
+  const [showPass, setShowPass] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const e = {};
+    if (!email.includes('@')) e.email = 'Valid email required';
+    if (pass.length < 8) e.pass = 'Minimum 8 characters';
+    setErrors(e);
+  };
+
+  const inputBase = {
+    width: '100%', padding: '10px 14px',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-md)', color: 'var(--text-1)',
+    fontFamily: 'var(--font-d)', fontSize: '14px',
+    outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
+  };
+  const labelStyle = { fontSize: '13px', fontWeight: 500, color: C.ink300, marginBottom: '6px', display: 'block' };
+  const errorStyle = { fontSize: '12px', color: C.error, marginTop: '5px', fontFamily: 'var(--font-m)' };
+  const hintStyle  = { fontSize: '12px', color: C.ink400, marginTop: '5px', fontFamily: 'var(--font-m)' };
+
+  return (
+    <section id="forms" className="section">
+      <SectionLabel num="02">Forms</SectionLabel>
+      <CardGrid>
+        {/* Text inputs */}
+        <div className="card">
+          <div className="card-title">// Text Inputs</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Default */}
+            <div>
+              <label style={labelStyle}>Project name</label>
+              <input placeholder="e.g. EurekaOrange v2" style={inputBase}
+                onFocus={e => { e.target.style.borderColor = C.jade; e.target.style.boxShadow = `0 0 0 3px rgba(30,207,163,0.12)`; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.07)'; e.target.style.boxShadow = 'none'; }}
+              />
+              <div style={hintStyle}>Give your project a memorable name</div>
+            </div>
+
+            {/* Email + error */}
+            <div>
+              <label style={labelStyle}>Email</label>
+              <input type="email" placeholder="you@example.com" value={email}
+                onChange={e => setEmail(e.target.value)} onBlur={validate}
+                style={{ ...inputBase, borderColor: errors.email ? C.error : email && email.includes('@') ? C.jade : 'rgba(255,255,255,0.07)' }}
+                onFocus={e => { e.target.style.boxShadow = `0 0 0 3px ${errors.email ? 'rgba(239,68,68,0.12)' : 'rgba(30,207,163,0.12)'}`; }}
+              />
+              {errors.email ? <div style={errorStyle}>⚠ {errors.email}</div> : email && email.includes('@') ? <div style={{ ...hintStyle, color: C.jade }}>✓ Valid email</div> : null}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label style={labelStyle}>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input type={showPass ? 'text' : 'password'} placeholder="Min. 8 characters"
+                  value={pass} onChange={e => setPass(e.target.value)} onBlur={validate}
+                  style={{ ...inputBase, borderColor: errors.pass ? C.error : 'rgba(255,255,255,0.07)', paddingRight: '40px' }}
+                  onFocus={e => { e.target.style.boxShadow = `0 0 0 3px rgba(30,207,163,0.12)`; }}
+                  onBlur={e => { e.target.style.boxShadow = 'none'; validate(); }}
+                />
+                <button onClick={() => setShowPass(!showPass)} style={{
+                  position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', color: C.ink400, cursor: 'pointer',
+                }}>
+                  {showPass ? '🙈' : '👁'}
+                </button>
+              </div>
+              {errors.pass && <div style={errorStyle}>⚠ {errors.pass}</div>}
+              {pass && (
+                <div style={{ marginTop: '8px', display: 'flex', gap: '4px' }}>
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} style={{
+                      flex: 1, height: '3px', borderRadius: '2px',
+                      background: i < Math.min(Math.floor(pass.length / 3), 4)
+                        ? [C.error, C.warning, C.jade, C.jadeLight][Math.min(Math.floor(pass.length / 3) - 1, 3)]
+                        : 'var(--border)',
+                      transition: 'background 0.3s',
+                    }} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Textarea */}
+            <div>
+              <label style={labelStyle}>Description</label>
+              <textarea rows={3} placeholder="Describe your project…" style={{ ...inputBase, resize: 'vertical', lineHeight: 1.6 }}
+                onFocus={e => { e.target.style.borderColor = C.jade; e.target.style.boxShadow = `0 0 0 3px rgba(30,207,163,0.12)`; }}
+                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.07)'; e.target.style.boxShadow = 'none'; }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Select, Checkbox, Radio, Range */}
+        <div className="card">
+          <div className="card-title">// Select / Checkbox / Radio / Range</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Select */}
+            <div>
+              <label style={labelStyle}>Role</label>
+              <div style={{ position: 'relative' }}>
+                <select value={select} onChange={e => setSelect(e.target.value)}
+                  style={{ ...inputBase, appearance: 'none', paddingRight: '36px', cursor: 'pointer' }}
+                  onFocus={e => { e.target.style.borderColor = C.jade; e.target.style.boxShadow = `0 0 0 3px rgba(30,207,163,0.12)`; }}
+                  onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.07)'; e.target.style.boxShadow = 'none'; }}
+                >
+                  <option value="">Select role…</option>
+                  <option>Designer</option>
+                  <option>Developer</option>
+                  <option>Product Manager</option>
+                  <option>Data Analyst</option>
+                </select>
+                <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.ink400} strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
+
+            {/* Checkboxes */}
+            <div>
+              <label style={labelStyle}>Notifications</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {['Email digest', 'Slack alerts', 'In-app banners'].map((opt, i) => {
+                  const [on, setOn] = useState(i === 0);
+                  return (
+                    <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                      <div onClick={() => setOn(!on)} style={{
+                        width: '18px', height: '18px', borderRadius: '4px', flexShrink: 0,
+                        background: on ? C.jade : 'transparent',
+                        border: `1.5px solid ${on ? C.jade : 'rgba(255,255,255,0.2)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.18s', cursor: 'pointer',
+                      }}>
+                        {on && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0d0d0b" strokeWidth="3.5"><path d="m5 12 5 5 9-9"/></svg>}
+                      </div>
+                      <span style={{ fontSize: '14px', color: on ? C.ink0 : C.ink300 }}>{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Radio */}
+            <div>
+              <label style={labelStyle}>Plan</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {[
+                  { val: 'option1', label: 'Free', sub: 'Up to 3 projects' },
+                  { val: 'option2', label: 'Pro', sub: 'Unlimited, $12/mo' },
+                  { val: 'option3', label: 'Enterprise', sub: 'Custom pricing' },
+                ].map(o => (
+                  <label key={o.val} onClick={() => setRadioVal(o.val)} style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '12px 16px', borderRadius: '10px', cursor: 'pointer',
+                    background: radioVal === o.val ? 'rgba(30,207,163,0.07)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${radioVal === o.val ? 'rgba(30,207,163,0.3)' : 'var(--border)'}`,
+                    transition: 'all 0.18s',
+                  }}>
+                    <div style={{
+                      width: '18px', height: '18px', borderRadius: '50%', flexShrink: 0,
+                      border: `1.5px solid ${radioVal === o.val ? C.jade : 'rgba(255,255,255,0.2)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {radioVal === o.val && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: C.jade }} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 600 }}>{o.label}</div>
+                      <div style={{ fontSize: '12px', color: C.ink400, fontFamily: 'var(--font-m)' }}>{o.sub}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Range */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>Opacity</label>
+                <span style={{ fontFamily: 'var(--font-m)', fontSize: '12px', color: C.jade }}>{range}%</span>
+              </div>
+              <input type="range" min="0" max="100" value={range} onChange={e => setRange(e.target.value)}
+                style={{ width: '100%', accentColor: C.jade, cursor: 'pointer', height: '4px' }}
+              />
+            </div>
+          </div>
+        </div>
+      </CardGrid>
+    </section>
+  );
+}
+
+/* ── 03 MODAL ──────────────────────────────────────────────────── */
+function ModalSection() {
+  const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Escape key closes any open overlay
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (open) setOpen(false);
+      if (confirmOpen) setConfirmOpen(false);
+      if (drawerOpen) setDrawerOpen(false);
+    };
+    if (open || confirmOpen || drawerOpen) {
+      document.addEventListener('keydown', onKey);
+      return () => document.removeEventListener('keydown', onKey);
+    }
+  }, [open, confirmOpen, drawerOpen]);
+
+  const backdropStyle = {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+    backdropFilter: 'blur(8px)', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+  };
+  const dialogStyle = {
+    background: '#1a1a17', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '20px', padding: '32px', width: '480px',
+    boxShadow: '0 24px 64px rgba(0,0,0,0.7)',
+    animation: 'slideUp 0.22s cubic-bezier(0.16,1,0.3,1)',
+  };
+
+  return (
+    <section id="modal" className="section">
+      <SectionLabel num="03">Modal &amp; Overlays</SectionLabel>
+      <CardGrid>
+        <div className="card">
+          <div className="card-title">// Dialog Modal</div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button onClick={() => setOpen(true)} style={{
+              background: C.jade, color: '#0d0d0b', border: 'none',
+              fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '14px',
+              padding: '10px 20px', borderRadius: '8px', cursor: 'pointer',
+            }}>Open Modal</button>
+            <button onClick={() => setConfirmOpen(true)} style={{
+              background: 'rgba(239,68,68,0.1)', color: '#ef4444',
+              border: '1px solid rgba(239,68,68,0.28)',
+              fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '14px',
+              padding: '10px 20px', borderRadius: '8px', cursor: 'pointer',
+            }}>Confirm Dialog</button>
+          </div>
+
+          {open && (
+            <div style={backdropStyle} onClick={() => setOpen(false)}>
+              <div role="dialog" aria-modal="true" aria-labelledby="modal-title-create"
+                style={dialogStyle} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                  <div>
+                    <h3 id="modal-title-create" style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px' }}>Create new project</h3>
+                    <p style={{ fontSize: '13px', color: C.ink300 }}>Fill in the details below to get started.</p>
+                  </div>
+                  <button onClick={() => setOpen(false)} aria-label="Close dialog" style={{ background: 'none', border: 'none', color: C.ink400, cursor: 'pointer', fontSize: '20px', padding: '0 4px', lineHeight: 1 }}>×</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                  <div>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: C.ink300, display: 'block', marginBottom: '6px' }}>Project name</label>
+                    <input placeholder="e.g. EurekaOrange v2" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontFamily: 'var(--font-d)', fontSize: '14px', outline: 'none' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '13px', fontWeight: 500, color: C.ink300, display: 'block', marginBottom: '6px' }}>Description</label>
+                    <textarea rows={3} placeholder="What's this project about?" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontFamily: 'var(--font-d)', fontSize: '14px', outline: 'none', resize: 'vertical' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: C.ink300, fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: '14px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setOpen(false)} style={{ background: C.jade, color: '#0d0d0b', border: 'none', fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '14px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer' }}>Create project</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {confirmOpen && (
+            <div style={backdropStyle} onClick={() => setConfirmOpen(false)}>
+              <div role="alertdialog" aria-modal="true" aria-labelledby="modal-title-delete" aria-describedby="modal-desc-delete"
+                style={{ ...dialogStyle, width: '400px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+                <div aria-hidden="true" style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h3 id="modal-title-delete" style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Delete project?</h3>
+                <p id="modal-desc-delete" style={{ fontSize: '14px', color: C.ink300, marginBottom: '24px', lineHeight: 1.6 }}>This action cannot be undone. All data will be permanently removed.</p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: C.ink300, fontFamily: 'var(--font-d)', fontWeight: 500, fontSize: '14px', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => setConfirmOpen(false)} style={{ flex: 1, background: 'rgba(239,68,68,0.85)', color: '#fff', border: 'none', fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '14px', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}>Delete</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Drawer */}
+        <div className="card">
+          <div className="card-title">// Side Drawer</div>
+          <button onClick={() => setDrawerOpen(true)} style={{
+            background: 'rgba(30,207,163,0.08)', color: C.jade,
+            border: `1px solid rgba(30,207,163,0.25)`,
+            fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '14px',
+            padding: '10px 20px', borderRadius: '8px', cursor: 'pointer',
+          }}>Open Drawer →</button>
+
+          {drawerOpen && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 }} onClick={() => setDrawerOpen(false)} />
+              <div role="dialog" aria-modal="true" aria-labelledby="drawer-title"
+                style={{
+                position: 'fixed', top: 0, right: 0, bottom: 0, width: '360px',
+                background: '#1a1a17', borderLeft: '1px solid rgba(255,255,255,0.08)',
+                zIndex: 1000, padding: '32px', overflowY: 'auto',
+                boxShadow: '-20px 0 60px rgba(0,0,0,0.5)',
+                animation: 'slideInRight 0.25s cubic-bezier(0.16,1,0.3,1)',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                  <h3 id="drawer-title" style={{ fontSize: '18px', fontWeight: 700 }}>Settings</h3>
+                  <button onClick={() => setDrawerOpen(false)} aria-label="Close drawer" style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: C.ink300, cursor: 'pointer', width: '32px', height: '32px', borderRadius: '8px', fontSize: '16px' }}>×</button>
+                </div>
+                {['Profile', 'Notifications', 'Security', 'Billing', 'API Keys', 'Danger Zone'].map((item, i) => (
+                  <div key={item} style={{
+                    padding: '14px 16px', borderRadius: '10px', marginBottom: '6px',
+                    background: i === 0 ? 'rgba(30,207,163,0.08)' : 'transparent',
+                    border: `1px solid ${i === 0 ? 'rgba(30,207,163,0.2)' : 'transparent'}`,
+                    color: i === 5 ? '#ef4444' : i === 0 ? C.jade : C.ink300,
+                    cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    fontSize: '14px', fontWeight: i === 0 ? 600 : 400,
+                  }}>
+                    {item}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </CardGrid>
+      <style>{`
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
+      `}</style>
+    </section>
+  );
+}
+
+/* ── 04 TABLE ──────────────────────────────────────────────────── */
+const TABLE_DATA = [
+  { name: 'Aurora Dashboard', status: 'Stable', owner: 'Mia Chen', tokens: 142, updated: '2025-04-28' },
+  { name: 'Prism Mobile',     status: 'Beta',   owner: 'Kai Tanaka', tokens: 89, updated: '2025-04-25' },
+  { name: 'Orbit Web',        status: 'New',    owner: 'Lena Park',  tokens: 203, updated: '2025-05-01' },
+  { name: 'Nexus Console',    status: 'Stable', owner: 'Sam Rivera', tokens: 178, updated: '2025-04-22' },
+  { name: 'Echo Analytics',   status: 'Alpha',  owner: 'Yuki Sato',  tokens: 56,  updated: '2025-04-18' },
+  { name: 'Pulse CRM',        status: 'Stable', owner: 'Nora Kim',   tokens: 311, updated: '2025-04-30' },
+];
+
+const STATUS_COLORS = {
+  Stable: { bg: 'rgba(30,207,163,0.12)',  color: C.jadeLight,  border: 'rgba(30,207,163,0.25)' },
+  Beta:   { bg: 'rgba(168,85,247,0.12)', color: '#c084fc',    border: 'rgba(168,85,247,0.25)' },
+  New:    { bg: 'rgba(30,207,163,0.08)', color: C.jade,       border: 'rgba(30,207,163,0.2)' },
+  Alpha:  { bg: 'rgba(6,182,212,0.12)',  color: '#22d3ee',    border: 'rgba(6,182,212,0.25)' },
+};
+
+function TableSection() {
+  const [sortKey, setSortKey] = useState('name');
+  const [sortDir, setSortDir] = useState(1);
+  const [selected, setSelected] = useState(new Set());
+  const [search, setSearch] = useState('');
+
+  const sorted = [...TABLE_DATA]
+    .filter(r => r.name.toLowerCase().includes(search.toLowerCase()) || r.owner.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => sortDir * String(a[sortKey]).localeCompare(String(b[sortKey])));
+
+  const toggleSort = (k) => { if (sortKey === k) setSortDir(-sortDir); else { setSortKey(k); setSortDir(1); } };
+  const toggleRow = (n) => { const s = new Set(selected); s.has(n) ? s.delete(n) : s.add(n); setSelected(s); };
+  const allSelected = sorted.length > 0 && sorted.every(r => selected.has(r.name));
+
+  return (
+    <section id="table" className="section">
+      <SectionLabel num="04">Table</SectionLabel>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Toolbar */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <input placeholder="Search projects…" value={search} onChange={e => setSearch(e.target.value)}
+            style={{ padding: '8px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff', fontFamily: 'var(--font-d)', fontSize: '13px', outline: 'none', width: '220px' }}
+          />
+          {selected.size > 0 && (
+            <span style={{ fontFamily: 'var(--font-m)', fontSize: '12px', color: C.jade }}>
+              {selected.size} selected
+            </span>
+          )}
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+            <button style={{ background: C.jade, color: '#0d0d0b', border: 'none', fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '13px', padding: '8px 16px', borderRadius: '7px', cursor: 'pointer' }}>
+              + New
+            </button>
+          </div>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              <th style={{ padding: '12px 20px', width: '40px' }}>
+                <div onClick={() => { if (allSelected) setSelected(new Set()); else setSelected(new Set(sorted.map(r => r.name))); }}
+                  style={{ width: '16px', height: '16px', borderRadius: '4px', background: allSelected ? C.jade : 'transparent', border: `1.5px solid ${allSelected ? C.jade : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  {allSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#0d0d0b" strokeWidth="3.5"><path d="m5 12 5 5 9-9"/></svg>}
+                </div>
+              </th>
+              {[['name','Project'],['status','Status'],['owner','Owner'],['tokens','Tokens'],['updated','Updated']].map(([k,l]) => (
+                <th key={k} onClick={() => toggleSort(k)} style={{
+                  padding: '12px 16px', textAlign: 'left', cursor: 'pointer',
+                  fontFamily: 'var(--font-m)', fontSize: '11px', letterSpacing: '0.08em',
+                  color: sortKey === k ? C.jade : C.ink400, fontWeight: 500,
+                  textTransform: 'uppercase', userSelect: 'none',
+                }}>
+                  {l} {sortKey === k ? (sortDir === 1 ? '↑' : '↓') : ''}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((row, i) => {
+              const isSelected = selected.has(row.name);
+              const sc = STATUS_COLORS[row.status] || STATUS_COLORS.Alpha;
+              return (
+                <tr key={row.name} style={{
+                  background: isSelected ? 'rgba(30,207,163,0.05)' : i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
+                  borderBottom: '1px solid var(--border)', transition: 'background 0.15s',
+                }}
+                  onMouseEnter={e => !isSelected && (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                  onMouseLeave={e => !isSelected && (e.currentTarget.style.background = i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent')}
+                >
+                  <td style={{ padding: '14px 20px' }}>
+                    <div onClick={() => toggleRow(row.name)} style={{ width: '16px', height: '16px', borderRadius: '4px', background: isSelected ? C.jade : 'transparent', border: `1.5px solid ${isSelected ? C.jade : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                      {isSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#0d0d0b" strokeWidth="3.5"><path d="m5 12 5 5 9-9"/></svg>}
+                    </div>
+                  </td>
+                  <td style={{ padding: '14px 16px', fontWeight: 500, fontSize: '14px' }}>{row.name}</td>
+                  <td style={{ padding: '14px 16px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '3px 10px', borderRadius: '999px', background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`, fontFamily: 'var(--font-m)', fontSize: '11px', letterSpacing: '0.05em' }}>{row.status}</span>
+                  </td>
+                  <td style={{ padding: '14px 16px', color: C.ink300, fontSize: '14px' }}>{row.owner}</td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'var(--font-m)', fontSize: '13px', color: C.jade }}>{row.tokens}</td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'var(--font-m)', fontSize: '12px', color: C.ink400 }}>{row.updated}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {/* Pagination */}
+        <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: 'var(--font-m)', fontSize: '12px', color: C.ink400 }}>
+            Showing {sorted.length} of {TABLE_DATA.length} results
+          </span>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {['←','1','2','3','→'].map((p, i) => (
+              <button key={p+i} style={{
+                width: '32px', height: '32px', borderRadius: '7px', border: 'none',
+                background: p === '1' ? C.jade : 'rgba(255,255,255,0.04)',
+                color: p === '1' ? '#0d0d0b' : C.ink300,
+                fontFamily: 'var(--font-m)', fontSize: '12px', cursor: 'pointer',
+              }}>{p}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 05 NAVIGATION ─────────────────────────────────────────────── */
+function NavSection() {
+  const [tab, setTab] = useState('overview');
+  const [breadcrumb] = useState(['Home', 'Projects', 'EurekaOrange', 'Components']);
+
+  return (
+    <section id="nav" className="section">
+      <SectionLabel num="05">Navigation</SectionLabel>
+      <CardGrid>
+        {/* Tabs */}
+        <div className="card">
+          <div className="card-title">// Tabs</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Underline tabs */}
+            <div>
+              <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)' }}>
+                {['overview','components','tokens','changelog'].map(t => (
+                  <button key={t} onClick={() => setTab(t)} style={{
+                    fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: tab === t ? 600 : 400,
+                    padding: '10px 18px', border: 'none', background: 'none', cursor: 'pointer',
+                    color: tab === t ? C.jade : C.ink300,
+                    borderBottom: `2px solid ${tab === t ? C.jade : 'transparent'}`,
+                    marginBottom: '-1px', textTransform: 'capitalize',
+                    transition: 'color 0.18s',
+                  }}>{t}</button>
+                ))}
+              </div>
+              <div style={{ padding: '20px 0', fontSize: '14px', color: C.ink300 }}>
+                Content for <span style={{ color: C.jade, fontWeight: 600 }}>{tab}</span> tab
+              </div>
+            </div>
+
+            {/* Pill tabs */}
+            <div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {['All','Design','Engineering','Product'].map((t, i) => {
+                  const [active, setActive] = useState(i === 0);
+                  return null;
+                })}
+                <PillTabs options={['All','Design','Engineering','Product']} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Breadcrumb + Pagination */}
+        <div className="card">
+          <div className="card-title">// Breadcrumb</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {breadcrumb.map((item, i) => (
+              <React.Fragment key={item}>
+                {i > 0 && <span style={{ color: C.ink500, fontSize: '13px' }}>/</span>}
+                <span style={{
+                  fontSize: '13px', fontWeight: i === breadcrumb.length - 1 ? 600 : 400,
+                  color: i === breadcrumb.length - 1 ? C.ink0 : C.ink400,
+                  cursor: i < breadcrumb.length - 1 ? 'pointer' : 'default',
+                }}>{item}</span>
+              </React.Fragment>
+            ))}
+          </div>
+
+          <div className="card-title">// Stepper</div>
+          <Stepper steps={['Details','Review','Publish']} active={1} />
+        </div>
+      </CardGrid>
+    </section>
+  );
+}
+
+function PillTabs({ options }) {
+  const [active, setActive] = useState(options[0]);
+  return (
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      {options.map(o => (
+        <button key={o} onClick={() => setActive(o)} style={{
+          padding: '6px 16px', borderRadius: '999px', border: 'none', cursor: 'pointer',
+          fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: 500,
+          background: active === o ? C.jade : 'rgba(255,255,255,0.06)',
+          color: active === o ? '#0d0d0b' : C.ink300,
+          transition: 'all 0.18s',
+        }}>{o}</button>
+      ))}
+    </div>
+  );
+}
+
+function Stepper({ steps, active }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {steps.map((s, i) => (
+        <React.Fragment key={s}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '50%',
+              background: i < active ? C.jade : i === active ? 'rgba(30,207,163,0.15)' : 'rgba(255,255,255,0.06)',
+              border: `2px solid ${i <= active ? C.jade : 'rgba(255,255,255,0.1)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: i < active ? '#0d0d0b' : i === active ? C.jade : C.ink400,
+              fontSize: '12px', fontWeight: 700,
+            }}>
+              {i < active ? '✓' : i + 1}
+            </div>
+            <span style={{ fontSize: '12px', color: i <= active ? C.ink0 : C.ink400, fontWeight: i === active ? 600 : 400, whiteSpace: 'nowrap' }}>{s}</span>
+          </div>
+          {i < steps.length - 1 && (
+            <div style={{ flex: 1, height: '2px', background: i < active ? C.jade : 'rgba(255,255,255,0.08)', margin: '-12px 8px 0', transition: 'background 0.3s' }} />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/* ── 06 FEEDBACK ───────────────────────────────────────────────── */
+function FeedbackSection() {
+  const [toasts, setToasts] = useState([]);
+  const addToast = (type) => {
+    const msgs = { success: 'Changes saved successfully', error: 'Something went wrong', warning: 'Your session expires soon', info: 'New update available' };
+    const id = Date.now();
+    setToasts(t => [...t, { id, type, msg: msgs[type] }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3000);
+  };
+
+  const toastColors = { success: { bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.3)', color: '#4ade80', icon: '✓' }, error: { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', color: '#f87171', icon: '✕' }, warning: { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', color: '#fbbf24', icon: '⚠' }, info: { bg: 'rgba(30,207,163,0.12)', border: 'rgba(30,207,163,0.3)', color: C.jadeLight, icon: 'ℹ' } };
+
+  return (
+    <section id="feedback" className="section">
+      <SectionLabel num="06">Feedback</SectionLabel>
+      <CardGrid>
+        {/* Alerts */}
+        <div className="card">
+          <div className="card-title">// Alerts</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {Object.entries(toastColors).map(([type, style]) => (
+              <div key={type} style={{
+                padding: '14px 16px', borderRadius: '10px',
+                background: style.bg, border: `1px solid ${style.border}`,
+                display: 'flex', gap: '12px', alignItems: 'flex-start',
+              }}>
+                <span style={{ color: style.color, fontWeight: 700, fontSize: '14px', flexShrink: 0 }}>{style.icon}</span>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: style.color, textTransform: 'capitalize', marginBottom: '2px' }}>{type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                  <div style={{ fontSize: '13px', color: C.ink300, lineHeight: 1.5 }}>{['Saved','Failed','Caution','Notice'][['success','error','warning','info'].indexOf(type)]} — this is a feedback message.</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Toast trigger + Progress */}
+        <div className="card">
+          <div className="card-title">// Toasts</div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {['success','error','warning','info'].map(t => (
+              <button key={t} onClick={() => addToast(t)} style={{
+                padding: '8px 16px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                background: toastColors[t].bg, color: toastColors[t].color,
+                fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: 500,
+              }}>{t}</button>
+            ))}
+          </div>
+
+          <div className="card-title">// Progress Bars</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {[{ label: 'Uploading…', pct: 68, color: C.jade }, { label: 'Processing', pct: 35, color: C.electric }, { label: 'Complete', pct: 100, color: C.success }].map(p => (
+              <div key={p.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '13px', color: C.ink300 }}>{p.label}</span>
+                  <span style={{ fontFamily: 'var(--font-m)', fontSize: '12px', color: p.color }}>{p.pct}%</span>
+                </div>
+                <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${p.pct}%`, background: p.color, borderRadius: '3px', boxShadow: `0 0 8px ${p.color}60` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardGrid>
+
+      {/* Toast container */}
+      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 2000, display: 'flex', flexDirection: 'column', gap: '10px', pointerEvents: 'none' }}>
+        {toasts.map(t => {
+          const s = toastColors[t.type];
+          return (
+            <div key={t.id} style={{
+              padding: '14px 20px', borderRadius: '12px',
+              background: '#1a1a17', border: `1px solid ${s.border}`,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              display: 'flex', gap: '12px', alignItems: 'center',
+              animation: 'slideUp 0.25s cubic-bezier(0.16,1,0.3,1)',
+              minWidth: '280px',
+            }}>
+              <span style={{ color: s.color, fontSize: '16px' }}>{s.icon}</span>
+              <span style={{ fontSize: '14px', color: C.ink0 }}>{t.msg}</span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ── 07 DATA DISPLAY ───────────────────────────────────────────── */
+function DataSection() {
+  const stats = [
+    { label: 'Total Tokens',   value: '614',  delta: '+12%',  up: true },
+    { label: 'Components',     value: '48',   delta: '+5',    up: true },
+    { label: 'Design Files',   value: '23',   delta: '-2',    up: false },
+    { label: 'Contributions',  value: '1.2k', delta: '+18%',  up: true },
+  ];
+
+  return (
+    <section id="data" className="section">
+      <SectionLabel num="07">Data Display</SectionLabel>
+      <CardGrid cols={4}>
+        {stats.map(s => (
+          <div key={s.label} style={{
+            background: 'var(--raised)', border: '1px solid var(--border)',
+            borderRadius: '16px', padding: '24px',
+          }}>
+            <div style={{ fontSize: '13px', color: C.ink400, marginBottom: '10px', fontFamily: 'var(--font-m)' }}>{s.label}</div>
+            <div style={{ fontSize: '32px', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '8px' }}>{s.value}</div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '4px',
+              fontSize: '12px', fontFamily: 'var(--font-m)',
+              color: s.up ? C.jade : '#ef4444',
+              background: s.up ? 'rgba(30,207,163,0.1)' : 'rgba(239,68,68,0.1)',
+              padding: '2px 8px', borderRadius: '999px',
+            }}>
+              {s.up ? '↑' : '↓'} {s.delta}
+            </div>
+          </div>
+        ))}
+      </CardGrid>
+
+      {/* Sparkline-style bars */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <div className="card-title" style={{ marginBottom: '20px' }}>// Activity — Token Additions per Month</div>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '80px' }}>
+          {[40,62,45,78,55,90,68,82,95,72,88,100].map((h, i) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+              <div style={{
+                width: '100%', height: `${h * 0.72}px`,
+                background: i === 11 ? C.jade : `rgba(30,207,163,${0.15 + h * 0.004})`,
+                borderRadius: '4px 4px 0 0',
+                boxShadow: i === 11 ? `0 0 12px rgba(30,207,163,0.5)` : 'none',
+                transition: 'height 0.3s',
+              }} />
+              <div style={{ fontFamily: 'var(--font-m)', fontSize: '9px', color: C.ink500 }}>
+                {['J','F','M','A','M','J','J','A','S','O','N','D'][i]}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 08 OVERLAYS ───────────────────────────────────────────────── */
+function OverlaysSection() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const menuRef = useRef(null);
+  const popoverRef = useRef(null);
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+      if (popoverRef.current && !popoverRef.current.contains(e.target)) setPopoverOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  return (
+    <section id="overlays" className="section">
+      <SectionLabel num="08">Overlays</SectionLabel>
+      <CardGrid>
+        {/* Tooltip */}
+        <div className="card">
+          <div className="card-title">// Tooltip</div>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', padding: '24px 0' }}>
+            {['top','right','bottom','left'].map(pos => (
+              <div key={pos} style={{ position: 'relative' }} className="tooltip-wrap">
+                <button style={{
+                  background: 'rgba(255,255,255,0.05)', color: C.ink300,
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: 500,
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'help',
+                }}>{pos}</button>
+                <span className={`eo-tip eo-tip-${pos}`} role="tooltip">
+                  Tooltip on {pos}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: '12px', color: C.ink400, fontFamily: 'var(--font-m)', marginTop: '12px' }}>
+            Hover to reveal · 4 placements
+          </div>
+        </div>
+
+        {/* Dropdown Menu */}
+        <div className="card" style={{ overflow: 'visible' }}>
+          <div className="card-title">// Dropdown Menu</div>
+          <div ref={menuRef} style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+              onClick={() => setMenuOpen(o => !o)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              style={{
+                background: menuOpen ? 'rgba(30,207,163,0.08)' : 'rgba(255,255,255,0.05)',
+                color: menuOpen ? C.jade : C.ink0,
+                border: `1px solid ${menuOpen ? 'rgba(30,207,163,0.3)' : 'var(--border)'}`,
+                fontFamily: 'var(--font-d)', fontSize: '13px', fontWeight: 500,
+                padding: '9px 16px', borderRadius: '8px', cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+              }}>
+              Actions
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                style={{ transition: 'transform 0.2s', transform: menuOpen ? 'rotate(180deg)' : 'none' }}>
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
+            {menuOpen && (
+              <div role="menu" style={{
+                position: 'absolute', top: 'calc(100% + 6px)', left: 0, minWidth: '200px',
+                background: '#1a1a17', border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px', padding: '6px', zIndex: 20,
+                boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+                animation: 'fadeIn 0.15s ease-out',
+              }}>
+                {[
+                  { icon: '📋', label: 'Duplicate', shortcut: '⌘D' },
+                  { icon: '✏️', label: 'Rename',    shortcut: '⌘R' },
+                  { icon: '↗',  label: 'Share…',    shortcut: '⌘S' },
+                  { divider: true },
+                  { icon: '🗑',  label: 'Delete', danger: true },
+                ].map((it, i) => it.divider ? (
+                  <div key={i} style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '6px 0' }} />
+                ) : (
+                  <div key={i} role="menuitem" tabIndex={0} style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '8px 10px', borderRadius: '7px', cursor: 'pointer',
+                    fontSize: '13px', color: it.danger ? '#f87171' : C.ink0,
+                    transition: 'background 0.12s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background = it.danger ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <span style={{ fontSize: '14px' }}>{it.icon}</span>
+                    <span style={{ flex: 1 }}>{it.label}</span>
+                    {it.shortcut && <span style={{ fontFamily: 'var(--font-m)', fontSize: '11px', color: C.ink400 }}>{it.shortcut}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Popover */}
+          <div className="card-title" style={{ marginTop: '32px' }}>// Popover</div>
+          <div ref={popoverRef} style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+              onClick={() => setPopoverOpen(o => !o)}
+              style={{
+                background: C.jade, color: '#0d0d0b', border: 'none',
+                fontFamily: 'var(--font-d)', fontWeight: 600, fontSize: '13px',
+                padding: '9px 18px', borderRadius: '8px', cursor: 'pointer',
+              }}>
+              Show details
+            </button>
+            {popoverOpen && (
+              <div role="dialog" style={{
+                position: 'absolute', top: 'calc(100% + 10px)', left: 0,
+                width: '280px', padding: '16px',
+                background: '#1a1a17', border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px', zIndex: 20,
+                boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
+                animation: 'fadeIn 0.18s ease-out',
+              }}>
+                <div style={{ position: 'absolute', top: '-6px', left: '20px', width: '12px', height: '12px',
+                  background: '#1a1a17', borderTop: '1px solid rgba(255,255,255,0.08)',
+                  borderLeft: '1px solid rgba(255,255,255,0.08)', transform: 'rotate(45deg)' }} />
+                <div style={{ fontSize: '14px', fontWeight: 700, marginBottom: '6px' }}>Quick info</div>
+                <div style={{ fontSize: '13px', color: C.ink300, lineHeight: 1.6, marginBottom: '12px' }}>
+                  Popoverはタップ・クリックで開閉する小型パネル。Tooltipと違いインタラクション可。
+                </div>
+                <button onClick={() => setPopoverOpen(false)} style={{
+                  background: 'rgba(255,255,255,0.05)', color: C.ink300,
+                  border: '1px solid var(--border)',
+                  fontFamily: 'var(--font-d)', fontSize: '12px', fontWeight: 500,
+                  padding: '6px 12px', borderRadius: '6px', cursor: 'pointer',
+                }}>Got it</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardGrid>
+      <style>{`
+        .tooltip-wrap .eo-tip {
+          position: absolute; padding: 6px 10px;
+          background: #222220; color: #fff;
+          font-family: var(--font-m); font-size: 11px;
+          border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);
+          white-space: nowrap; pointer-events: none;
+          opacity: 0; transform: translateY(4px); transition: all 0.18s cubic-bezier(0.16,1,0.3,1);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+          z-index: 10;
+        }
+        .tooltip-wrap:hover .eo-tip,
+        .tooltip-wrap:focus-within .eo-tip { opacity: 1; transform: translateY(0); }
+        .eo-tip-top    { bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px); }
+        .tooltip-wrap:hover .eo-tip-top { transform: translate(-50%, 0); }
+        .eo-tip-bottom { top: calc(100% + 8px); left: 50%; transform: translate(-50%, -4px); }
+        .tooltip-wrap:hover .eo-tip-bottom { transform: translate(-50%, 0); }
+        .eo-tip-right  { left: calc(100% + 8px); top: 50%; transform: translate(-4px, -50%); }
+        .tooltip-wrap:hover .eo-tip-right { transform: translate(0, -50%); }
+        .eo-tip-left   { right: calc(100% + 8px); top: 50%; transform: translate(4px, -50%); }
+        .tooltip-wrap:hover .eo-tip-left { transform: translate(0, -50%); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+    </section>
+  );
+}
+
+/* ── 09 TABS & AUX NAV ─────────────────────────────────────────── */
+function TabsAuxSection() {
+  const [tab, setTab] = useState('overview');
+  const [page, setPage] = useState(3);
+  const TABS = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'analytics', label: 'Analytics', badge: 12 },
+    { id: 'reports', label: 'Reports' },
+    { id: 'settings', label: 'Settings' },
+  ];
+  const totalPages = 12;
+  const pages = (() => {
+    const arr = [];
+    const range = (a,b) => { for (let i=a;i<=b;i++) arr.push(i); };
+    if (totalPages <= 7) { range(1, totalPages); return arr; }
+    if (page <= 4)             { range(1, 5); arr.push('…', totalPages); return arr; }
+    if (page >= totalPages-3)  { arr.push(1, '…'); range(totalPages-4, totalPages); return arr; }
+    arr.push(1, '…'); range(page-1, page+1); arr.push('…', totalPages); return arr;
+  })();
+
+  return (
+    <section id="tabs" className="section">
+      <SectionLabel num="09">Tabs &amp; Aux Navigation</SectionLabel>
+      <CardGrid>
+        {/* Underline Tabs */}
+        <div className="card">
+          <div className="card-title">// Underline Tabs</div>
+          <div role="tablist" style={{
+            display: 'flex', gap: '4px', borderBottom: '1px solid var(--border)',
+            marginBottom: '20px',
+          }}>
+            {TABS.map(t => (
+              <button key={t.id}
+                role="tab" aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-d)', fontSize: '13px',
+                  fontWeight: tab === t.id ? 600 : 500,
+                  color: tab === t.id ? C.jade : C.ink300,
+                  padding: '10px 14px', position: 'relative',
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  marginBottom: '-1px',
+                  borderBottom: `2px solid ${tab === t.id ? C.jade : 'transparent'}`,
+                  transition: 'color 0.18s, border-color 0.18s',
+                }}>
+                {t.label}
+                {t.badge && (
+                  <span style={{
+                    fontFamily: 'var(--font-m)', fontSize: '10px',
+                    background: tab === t.id ? 'rgba(30,207,163,0.18)' : 'rgba(255,255,255,0.07)',
+                    color: tab === t.id ? C.jade : C.ink400,
+                    padding: '1px 6px', borderRadius: '999px',
+                  }}>{t.badge}</span>
+                )}
+              </button>
+            ))}
+          </div>
+          <div role="tabpanel" style={{
+            background: 'rgba(255,255,255,0.02)', borderRadius: '10px', padding: '20px',
+            fontSize: '13px', color: C.ink300, lineHeight: 1.7,
+          }}>
+            <span style={{ fontFamily: 'var(--font-m)', color: C.jade, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{tab}</span>
+            <p style={{ marginTop: '6px' }}>
+              タブ「{TABS.find(t => t.id === tab).label}」のコンテンツがここに表示されます。
+            </p>
+          </div>
+        </div>
+
+        {/* Breadcrumb + Pagination */}
+        <div className="card">
+          <div className="card-title">// Breadcrumb</div>
+          <nav aria-label="Breadcrumb" style={{ marginBottom: '32px' }}>
+            <ol style={{
+              listStyle: 'none', display: 'flex', flexWrap: 'wrap',
+              alignItems: 'center', gap: '8px', padding: 0,
+            }}>
+              {[
+                { label: 'Workspace', href: '#' },
+                { label: 'Projects',  href: '#' },
+                { label: 'Aurora Dashboard', href: '#' },
+                { label: 'Tokens', current: true },
+              ].map((b, i, arr) => (
+                <React.Fragment key={b.label}>
+                  <li>
+                    {b.current ? (
+                      <span aria-current="page" style={{
+                        fontSize: '13px', color: C.ink0, fontWeight: 500,
+                      }}>{b.label}</span>
+                    ) : (
+                      <a href={b.href} style={{
+                        fontSize: '13px', color: C.ink300, textDecoration: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.color = C.jade}
+                        onMouseLeave={e => e.currentTarget.style.color = C.ink300}
+                      >{b.label}</a>
+                    )}
+                  </li>
+                  {i < arr.length - 1 && (
+                    <li aria-hidden="true" style={{ color: C.ink500, fontFamily: 'var(--font-m)', fontSize: '12px' }}>/</li>
+                  )}
+                </React.Fragment>
+              ))}
+            </ol>
+          </nav>
+
+          <div className="card-title">// Pagination</div>
+          <nav aria-label="Pagination" style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="Previous page"
+              style={{
+                background: 'rgba(255,255,255,0.04)', color: page === 1 ? C.ink500 : C.ink300,
+                border: '1px solid var(--border)', cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontFamily: 'var(--font-d)', fontSize: '13px',
+                width: '34px', height: '34px', borderRadius: '7px',
+              }}>‹</button>
+            {pages.map((p, i) => p === '…' ? (
+              <span key={`e-${i}`} style={{ color: C.ink400, padding: '0 6px', fontFamily: 'var(--font-m)' }}>…</span>
+            ) : (
+              <button key={p} onClick={() => setPage(p)}
+                aria-current={page === p ? 'page' : undefined}
+                style={{
+                  background: page === p ? C.jade : 'rgba(255,255,255,0.04)',
+                  color: page === p ? '#0d0d0b' : C.ink0,
+                  border: page === p ? 'none' : '1px solid var(--border)',
+                  fontFamily: 'var(--font-d)', fontSize: '13px',
+                  fontWeight: page === p ? 700 : 500,
+                  width: '34px', height: '34px', borderRadius: '7px',
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}>{p}</button>
+            ))}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              aria-label="Next page"
+              style={{
+                background: 'rgba(255,255,255,0.04)', color: page === totalPages ? C.ink500 : C.ink300,
+                border: '1px solid var(--border)', cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                fontFamily: 'var(--font-d)', fontSize: '13px',
+                width: '34px', height: '34px', borderRadius: '7px',
+              }}>›</button>
+            <span style={{ marginLeft: '12px', fontFamily: 'var(--font-m)', fontSize: '12px', color: C.ink400 }}>
+              {page} / {totalPages}
+            </span>
+          </nav>
+        </div>
+      </CardGrid>
+    </section>
+  );
+}
+
+/* ── 10 LOADING & DISPLAY ──────────────────────────────────────── */
+function DisplaySection() {
+  const [openItem, setOpenItem] = useState(0);
+  const accordionItems = [
+    { q: 'デザイントークンって何?', a: '色・余白・タイポなど、デザインの最小単位を変数化したもの。値の一元管理ができ、テーマ切替も容易になる。' },
+    { q: 'ダーク/ライトモードの切替方法は?', a: '<html data-theme="dark"> または "light" を指定。CSSカスタムプロパティが自動で切り替わる。' },
+    { q: 'Tailwindとの併用は?', a: 'tailwind.config.jsをインポートしてextendすればOK。CSS変数経由でランタイム切替も両立できる。' },
+    { q: 'Figma連携は?', a: 'figma-variables.htmlでJSONをエクスポート → Figma Variables Importプラグインでインポート可能。' },
+  ];
+  const initials = (n) => n.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+  const avatars = [
+    { name: 'Mia Chen',    color: '#1ecfa3' },
+    { name: 'Kai Tanaka',  color: '#a855f7' },
+    { name: 'Lena Park',   color: '#06b6d4' },
+    { name: 'Sam Rivera',  color: '#f59e0b' },
+    { name: 'Yuki Sato',   color: '#84cc16' },
+  ];
+
+  return (
+    <section id="display" className="section">
+      <SectionLabel num="10">Loading &amp; Display</SectionLabel>
+      <CardGrid>
+        {/* Avatar */}
+        <div className="card">
+          <div className="card-title">// Avatar</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              {[28, 36, 44, 56].map(size => (
+                <div key={size} style={{
+                  width: size, height: size, borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${C.jade}, ${C.electric})`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-d)', fontWeight: 700,
+                  fontSize: size * 0.36, color: '#fff',
+                  border: '2px solid #0d0d0b',
+                }}>MC</div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: C.ink400, marginBottom: '10px', fontFamily: 'var(--font-m)', letterSpacing: '0.08em' }}>// Avatar Group</div>
+              <div style={{ display: 'flex' }}>
+                {avatars.slice(0, 4).map((a, i) => (
+                  <div key={a.name} title={a.name} style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    background: a.color, color: '#0d0d0b',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '12px',
+                    border: '2px solid #1a1a17',
+                    marginLeft: i === 0 ? 0 : '-10px', zIndex: 10 - i,
+                    cursor: 'pointer', transition: 'transform 0.18s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  >{initials(a.name)}</div>
+                ))}
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.06)', color: C.ink300,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-m)', fontSize: '11px',
+                  border: '2px solid #1a1a17', marginLeft: '-10px',
+                }}>+{avatars.length - 4}</div>
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: C.ink400, marginBottom: '10px', fontFamily: 'var(--font-m)', letterSpacing: '0.08em' }}>// With Status</div>
+              <div style={{ display: 'flex', gap: '14px' }}>
+                {[
+                  { color: C.success, label: 'online' },
+                  { color: C.warning, label: 'away' },
+                  { color: C.ink400,  label: 'offline' },
+                ].map(s => (
+                  <div key={s.label} style={{ position: 'relative', display: 'inline-block' }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${C.jade}, ${C.electric})`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '14px', color: '#fff',
+                    }}>EO</div>
+                    <div title={s.label} style={{
+                      position: 'absolute', bottom: 0, right: 0,
+                      width: 12, height: 12, borderRadius: '50%',
+                      background: s.color, border: '2px solid #1a1a17',
+                    }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton */}
+        <div className="card">
+          <div className="card-title">// Skeleton — Loading State</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+              <div className="eo-skel" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="eo-skel" style={{ width: '60%', height: 12, borderRadius: '4px' }} />
+                <div className="eo-skel" style={{ width: '40%', height: 10, borderRadius: '4px' }} />
+              </div>
+            </div>
+            <div className="eo-skel" style={{ width: '100%',  height: 10, borderRadius: '4px' }} />
+            <div className="eo-skel" style={{ width: '92%',   height: 10, borderRadius: '4px' }} />
+            <div className="eo-skel" style={{ width: '78%',   height: 10, borderRadius: '4px' }} />
+            <div className="eo-skel" style={{ width: '100%', height: 120, borderRadius: '10px', marginTop: '8px' }} />
+          </div>
+        </div>
+
+        {/* Accordion */}
+        <div className="card" style={{ gridColumn: '1 / -1' }}>
+          <div className="card-title">// Accordion / FAQ</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {accordionItems.map((it, i) => {
+              const open = openItem === i;
+              return (
+                <div key={i} style={{
+                  background: 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${open ? 'rgba(30,207,163,0.25)' : 'var(--border)'}`,
+                  borderRadius: '10px', overflow: 'hidden',
+                  transition: 'border-color 0.2s',
+                }}>
+                  <button
+                    onClick={() => setOpenItem(open ? -1 : i)}
+                    aria-expanded={open}
+                    style={{
+                      width: '100%', textAlign: 'left',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: '14px 16px',
+                      fontFamily: 'var(--font-d)', fontSize: '14px',
+                      fontWeight: open ? 600 : 500,
+                      color: open ? C.jade : C.ink0,
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px',
+                    }}>
+                    <span>{it.q}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                      style={{ flexShrink: 0, transition: 'transform 0.22s', transform: open ? 'rotate(180deg)' : 'none' }}>
+                      <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <div style={{
+                    maxHeight: open ? 200 : 0, overflow: 'hidden',
+                    transition: 'max-height 0.28s cubic-bezier(0.16,1,0.3,1)',
+                  }}>
+                    <div style={{
+                      padding: '0 16px 16px',
+                      fontSize: '13px', color: C.ink300, lineHeight: 1.7,
+                    }}>{it.a}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CardGrid>
+      <style>{`
+        .eo-skel {
+          background: linear-gradient(90deg,
+            rgba(255,255,255,0.04) 0%,
+            rgba(255,255,255,0.08) 50%,
+            rgba(255,255,255,0.04) 100%);
+          background-size: 200% 100%;
+          animation: eo-shimmer 1.6s linear infinite;
+        }
+        @keyframes eo-shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ── Sidebar Nav ───────────────────────────────────────────────── */
+function Sidebar({ active }) {
+  return (
+    <nav className="sidebar" aria-label="Component sections">
+      {/* Logo */}
+      <div style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border)' }}>
+        <a href="EurekaOrange Design System.html" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <svg width="24" height="24" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="#1ecfa3" strokeWidth="2"/>
+            <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+            <path d="M40 20 L54 28 L54 52" stroke="#1ecfa3" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+            <path d="M26 28 L40 20" stroke="#52e2bc" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '14px', color: '#fff' }}>EurekaOrange</span>
+        </a>
+        <div style={{ fontFamily: 'var(--font-m)', fontSize: '10px', color: C.ink500, letterSpacing: '0.1em' }}>COMPONENT LIBRARY</div>
+      </div>
+
+      {/* Links */}
+      <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
+        {NAV_ITEMS.map(item => (
+          <a key={item.id} href={`#${item.id}`} style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '9px 12px', borderRadius: '8px', textDecoration: 'none',
+            color: active === item.id ? C.jade : C.ink300,
+            background: active === item.id ? 'rgba(30,207,163,0.08)' : 'transparent',
+            fontSize: '13px', fontWeight: active === item.id ? 600 : 400,
+            transition: 'all 0.15s', marginBottom: '2px',
+          }}
+            onMouseEnter={e => { if (active !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+            onMouseLeave={e => { if (active !== item.id) e.currentTarget.style.background = 'transparent'; }}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+
+      {/* Footer links */}
+      <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {[
+          { href: 'tokens.html', label: 'Token Reference' },
+          { href: 'brand-assets.html', label: 'Brand Assets' },
+        ].map(l => (
+          <a key={l.label} href={l.href} style={{ fontSize: '12px', color: C.ink400, textDecoration: 'none', fontFamily: 'var(--font-m)' }}
+            onMouseEnter={e => e.currentTarget.style.color = C.jade}
+            onMouseLeave={e => e.currentTarget.style.color = C.ink400}
+          >{l.label} →</a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ── Tweaks ─────────────────────────────────────────────────────── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#1ecfa3",
+  "density": "comfortable",
+  "roundness": "medium"
+}/*EDITMODE-END*/;
+
+function TweaksApp() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--jade', tweaks.accentColor);
+    const rMap = { sharp: '4px', medium: '8px', round: '16px' };
+    document.documentElement.style.setProperty('--r-md', rMap[tweaks.roundness] || '8px');
+    document.documentElement.style.setProperty('--r-lg', tweaks.roundness === 'sharp' ? '6px' : tweaks.roundness === 'round' ? '20px' : '12px');
+  }, [tweaks]);
+  return (
+    <TweaksPanel>
+      <TweakColor label="Accent" value={tweaks.accentColor} onChange={v => setTweak('accentColor', v)} />
+      <TweakRadio label="Roundness" options={['sharp','medium','round']} value={tweaks.roundness} onChange={v => setTweak('roundness', v)} />
+      <TweakRadio label="Density" options={['compact','comfortable']} value={tweaks.density} onChange={v => setTweak('density', v)} />
+    </TweaksPanel>
+  );
+}
+
+/* ── App ─────────────────────────────────────────────────────────── */
+function App() {
+  const [activeSection, setActiveSection] = useState('buttons');
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    NAV_ITEMS.forEach(item => {
+      const el = document.getElementById(item.id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <>
+      <a href="#main-content" className="eo-skip-link" style={{
+        position: 'absolute', top: '-40px', left: '16px', zIndex: 9999,
+        padding: '8px 16px', background: C.jade, color: '#0d0d0b',
+        fontFamily: 'var(--font-m)', fontSize: '13px', fontWeight: 600,
+        borderRadius: '8px', textDecoration: 'none', transition: 'top 0.15s',
+      }}
+        onFocus={e => e.currentTarget.style.top = '16px'}
+        onBlur={e => e.currentTarget.style.top = '-40px'}
+      >Skip to main content</a>
+      <div className="layout">
+        <Sidebar active={activeSection} />
+        <main id="main-content" className="main" tabIndex={-1}>
+          <div style={{ marginBottom: '56px' }}>
+            <div style={{ fontFamily: 'var(--font-m)', fontSize: '11px', color: C.jade, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ display: 'inline-block', width: '24px', height: '1px', background: C.jade }} />
+              Component Library
+            </div>
+            <h1 style={{ fontFamily: 'var(--font-d)', fontWeight: 700, fontSize: '40px', letterSpacing: '-0.03em', marginBottom: '10px' }}>Components</h1>
+            <p style={{ color: C.ink300, fontSize: '15px', maxWidth: '540px', lineHeight: 1.7 }}>
+              インタラクティブなコンポーネントのカタログ。すべてEurekaOrangeトークンで構成。
+            </p>
+          </div>
+          <ButtonsSection />
+          <FormsSection />
+          <ModalSection />
+          <TableSection />
+          <NavSection />
+          <FeedbackSection />
+          <DataSection />
+          <OverlaysSection />
+          <TabsAuxSection />
+          <DisplaySection />
+        </main>
+      </div>
+      <TweaksApp />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

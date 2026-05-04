@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* === EUREKA ORANGE — DESIGN TOKENS === */
+
+    /* Primary — Eureka (Jade Color Scale) */
+    --eo-orange-50:  #e8fdf6;
+    --eo-orange-100: #c4f7e8;
+    --eo-orange-200: #8eefd4;
+    --eo-orange-300: #52e2bc;
+    --eo-orange-400: #1ecfa3;
+    --eo-orange-500: #0fb389;
+    --eo-orange-600: #098f6d;
+    --eo-orange-700: #066b51;
+    --eo-orange-800: #034636;
+    --eo-orange-900: #01231b;
+
+    /* Neutral — Ink */
+    --eo-ink-0:   #ffffff;
+    --eo-ink-50:  #f5f5f3;
+    --eo-ink-100: #e8e7e3;
+    --eo-ink-200: #c8c7c0;
+    --eo-ink-300: #9b9a91;
+    --eo-ink-400: #6e6d63;
+    --eo-ink-500: #484740;
+    --eo-ink-600: #2e2d28;
+    --eo-ink-700: #1c1b18;
+    --eo-ink-800: #111110;
+    --eo-ink-900: #080807;
+
+    /* Status */
+    --eo-success: #22c55e;
+    --eo-warning: #f59e0b;
+    --eo-error:   #ef4444;
+    --eo-info:    #3b82f6;
+
+    /* Accent */
+    --eo-electric: #a855f7;
+    --eo-acid:     #84cc16;
+    --eo-ice:      #06b6d4;
+
+    /* Typography */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono:    'DM Mono', monospace;
+    --font-code:    'Space Mono', monospace;
+
+    /* Type Scale */
+    --text-xs:   0.75rem;
+    --text-sm:   0.875rem;
+    --text-base: 1rem;
+    --text-lg:   1.125rem;
+    --text-xl:   1.25rem;
+    --text-2xl:  1.5rem;
+    --text-3xl:  1.875rem;
+    --text-4xl:  2.25rem;
+    --text-5xl:  3rem;
+    --text-6xl:  3.75rem;
+    --text-7xl:  4.5rem;
+    --text-8xl:  6rem;
+
+    /* Spacing */
+    --space-1:  0.25rem;
+    --space-2:  0.5rem;
+    --space-3:  0.75rem;
+    --space-4:  1rem;
+    --space-5:  1.25rem;
+    --space-6:  1.5rem;
+    --space-8:  2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+    --space-32: 8rem;
+
+    /* Border Radius */
+    --radius-sm:   4px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-xl:   20px;
+    --radius-2xl:  32px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-lg:   0 10px 30px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.3);
+    --shadow-xl:   0 20px 60px rgba(0,0,0,0.7);
+    --shadow-glow: 0 0 40px rgba(30,207,163,0.35), 0 0 80px rgba(30,207,163,0.15);
+    --shadow-glow-sm: 0 0 16px rgba(30,207,163,0.4);
+
+    /* Surfaces */
+    --surface-bg:      #0d0d0b;
+    --surface-base:    #131311;
+    --surface-raised:  #1a1a17;
+    --surface-overlay: #222220;
+    --surface-border:  rgba(255,255,255,0.07);
+
+    /* Current theme (dark default) */
+    --bg:        var(--surface-bg);
+    --surface:   var(--surface-base);
+    --border:    var(--surface-border);
+    --text-primary:   var(--eo-ink-0);
+    --text-secondary: var(--eo-ink-300);
+    --text-tertiary:  var(--eo-ink-500);
+    --accent:    var(--eo-orange-400);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  #root { position: relative; z-index: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface-base); }
+  ::-webkit-scrollbar-thumb { background: var(--eo-ink-600); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--eo-orange-500); }
+
+  /* Selection */
+  ::selection { background: rgba(30,207,163,0.3); color: #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── Tokens ──────────────────────────────────────────────────────────────────
+const COLORS = {
+  orange: [
+    { name: 'orange-50',  value: '#e8fdf6', label: '50' },
+    { name: 'orange-100', value: '#c4f7e8', label: '100' },
+    { name: 'orange-200', value: '#8eefd4', label: '200' },
+    { name: 'orange-300', value: '#52e2bc', label: '300' },
+    { name: 'orange-400', value: '#1ecfa3', label: '400' },
+    { name: 'orange-500', value: '#0fb389', label: '500' },
+    { name: 'orange-600', value: '#098f6d', label: '600' },
+    { name: 'orange-700', value: '#066b51', label: '700' },
+    { name: 'orange-800', value: '#034636', label: '800' },
+    { name: 'orange-900', value: '#01231b', label: '900' },
+  ],
+  ink: [
+    { name: 'ink-0',   value: '#ffffff', label: '0' },
+    { name: 'ink-50',  value: '#f5f5f3', label: '50' },
+    { name: 'ink-100', value: '#e8e7e3', label: '100' },
+    { name: 'ink-200', value: '#c8c7c0', label: '200' },
+    { name: 'ink-300', value: '#9b9a91', label: '300' },
+    { name: 'ink-400', value: '#6e6d63', label: '400' },
+    { name: 'ink-500', value: '#484740', label: '500' },
+    { name: 'ink-600', value: '#2e2d28', label: '600' },
+    { name: 'ink-700', value: '#1c1b18', label: '700' },
+    { name: 'ink-800', value: '#111110', label: '800' },
+    { name: 'ink-900', value: '#080807', label: '900' },
+  ],
+  status: [
+    { name: 'success', value: '#22c55e', label: 'Success' },
+    { name: 'warning', value: '#f59e0b', label: 'Warning' },
+    { name: 'error',   value: '#ef4444', label: 'Error' },
+    { name: 'info',    value: '#3b82f6', label: 'Info' },
+  ],
+  accent: [
+    { name: 'electric', value: '#a855f7', label: 'Electric' },
+    { name: 'acid',     value: '#84cc16', label: 'Acid' },
+    { name: 'ice',      value: '#06b6d4', label: 'Ice' },
+  ],
+};
+
+const TYPE_SCALE = [
+  { token: '--text-xs',   size: '12px / 0.75rem',   usage: 'Labels, badges, captions' },
+  { token: '--text-sm',   size: '14px / 0.875rem',  usage: 'Body small, metadata' },
+  { token: '--text-base', size: '16px / 1rem',      usage: 'Body default, inputs' },
+  { token: '--text-lg',   size: '18px / 1.125rem',  usage: 'Body large, card titles' },
+  { token: '--text-xl',   size: '20px / 1.25rem',   usage: 'Section labels' },
+  { token: '--text-2xl',  size: '24px / 1.5rem',    usage: 'H4, subheadings' },
+  { token: '--text-3xl',  size: '30px / 1.875rem',  usage: 'H3' },
+  { token: '--text-4xl',  size: '36px / 2.25rem',   usage: 'H2' },
+  { token: '--text-5xl',  size: '48px / 3rem',      usage: 'H1, page titles' },
+  { token: '--text-6xl',  size: '60px / 3.75rem',   usage: 'Hero large' },
+  { token: '--text-7xl',  size: '72px / 4.5rem',    usage: 'Display' },
+  { token: '--text-8xl',  size: '96px / 6rem',      usage: 'Display XL, brand moments' },
+];
+
+const SPACING = [
+  { token: '--space-1',  value: '4px',  px: 4 },
+  { token: '--space-2',  value: '8px',  px: 8 },
+  { token: '--space-3',  value: '12px', px: 12 },
+  { token: '--space-4',  value: '16px', px: 16 },
+  { token: '--space-5',  value: '20px', px: 20 },
+  { token: '--space-6',  value: '24px', px: 24 },
+  { token: '--space-8',  value: '32px', px: 32 },
+  { token: '--space-10', value: '40px', px: 40 },
+  { token: '--space-12', value: '48px', px: 48 },
+  { token: '--space-16', value: '64px', px: 64 },
+  { token: '--space-20', value: '80px', px: 80 },
+  { token: '--space-24', value: '96px', px: 96 },
+];
+
+const SHADOWS = [
+  { name: 'sm',      token: '--shadow-sm',      css: '0 1px 3px rgba(0,0,0,0.4)' },
+  { name: 'md',      token: '--shadow-md',      css: '0 4px 12px rgba(0,0,0,0.5)' },
+  { name: 'lg',      token: '--shadow-lg',      css: '0 10px 30px rgba(0,0,0,0.6)' },
+  { name: 'xl',      token: '--shadow-xl',      css: '0 20px 60px rgba(0,0,0,0.7)' },
+  { name: 'glow',    token: '--shadow-glow',    css: '0 0 40px rgba(30,207,163,0.35)', orange: true },
+  { name: 'glow-sm', token: '--shadow-glow-sm', css: '0 0 16px rgba(30,207,163,0.4)',  orange: true },
+];
+
+const RADII = [
+  { name: 'sm',   token: '--radius-sm',   value: '4px',     px: 4 },
+  { name: 'md',   token: '--radius-md',   value: '8px',     px: 8 },
+  { name: 'lg',   token: '--radius-lg',   value: '12px',    px: 12 },
+  { name: 'xl',   token: '--radius-xl',   value: '20px',    px: 20 },
+  { name: '2xl',  token: '--radius-2xl',  value: '32px',    px: 32 },
+  { name: 'full', token: '--radius-full', value: '9999px',  px: 9999 },
+];
+
+// ── Small utilities ──────────────────────────────────────────────────────────
+function isLight(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return (r*0.299 + g*0.587 + b*0.114) > 128;
+}
+
+function CopyBadge({ text }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard?.writeText(text).catch(()=>{});
+    setCopied(true);
+    setTimeout(()=>setCopied(false), 1500);
+  };
+  return (
+    <button onClick={copy} style={{
+      background: 'none', border: 'none', cursor: 'pointer',
+      fontFamily: 'var(--font-mono)', fontSize: '11px',
+      color: copied ? 'var(--eo-orange-400)' : 'var(--eo-ink-400)',
+      padding: '2px 4px', borderRadius: '3px',
+      transition: 'color 0.2s',
+    }}>
+      {copied ? '✓ copied' : text}
+    </button>
+  );
+}
+
+function SectionLabel({ children }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '12px',
+      marginBottom: '32px',
+    }}>
+      <div style={{
+        width: '6px', height: '6px', borderRadius: '50%',
+        background: 'var(--eo-orange-400)',
+        boxShadow: 'var(--shadow-glow-sm)',
+        flexShrink: 0,
+      }}></div>
+      <span style={{
+        fontFamily: 'var(--font-mono)', fontSize: '11px',
+        letterSpacing: '0.12em', textTransform: 'uppercase',
+        color: 'var(--eo-orange-400)',
+      }}>{children}</span>
+      <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+    </div>
+  );
+}
+
+// ── Nav ──────────────────────────────────────────────────────────────────────
+const NAV_ITEMS = ['Colors','Typography','Spacing','Shadows','Components','Brand'];
+
+function Nav() {
+  const [active, setActive] = useState('Colors');
+  useEffect(() => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) setActive(e.target.dataset.section); });
+    }, { rootMargin: '-40% 0px -50% 0px' });
+    NAV_ITEMS.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0,
+      zIndex: 100,
+      background: 'rgba(13,13,11,0.85)',
+      backdropFilter: 'blur(20px)',
+      borderBottom: '1px solid var(--border)',
+      padding: '0 40px',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      height: '56px',
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#1ecfa3" strokeWidth="1.5"/>
+          <path d="M9 10 L14 7 L19 10 L19 18 L14 21 L9 18 Z" fill="#1ecfa3" opacity="0.15"/>
+          <path d="M14 7 L19 10 L19 18" stroke="#1ecfa3" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+          <path d="M9 10 L14 7" stroke="#52e2bc" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="14" cy="14" r="2.5" fill="#1ecfa3"/>
+          <line x1="14" y1="10" x2="14" y2="11.5" stroke="#8eefd4" strokeWidth="1" strokeLinecap="round"/>
+        </svg>
+        <span style={{
+          fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '15px',
+          letterSpacing: '-0.02em',
+        }}>EurekaOrange</span>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: '10px',
+          color: 'var(--eo-ink-400)', letterSpacing: '0.05em',
+        }}>/ Design System v1.0</span>
+      </div>
+
+      {/* Nav links */}
+      <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
+        {NAV_ITEMS.map(item => (
+          <a key={item} href={`#${item}`} style={{
+            fontFamily: 'var(--font-display)', fontSize: '13px', fontWeight: 500,
+            color: active === item ? 'var(--eo-orange-400)' : 'var(--eo-ink-300)',
+            textDecoration: 'none', padding: '6px 14px', borderRadius: '6px',
+            background: active === item ? 'rgba(30,207,163,0.08)' : 'transparent',
+            transition: 'all 0.2s',
+          }}>{item}</a>
+        ))}
+        <div style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 6px' }} />
+        {[
+          { href: 'components.html',        label: 'Components' },
+          { href: 'tokens.html',            label: 'Tokens' },
+          { href: 'light-mode-tokens.html', label: 'Light Mode' },
+          { href: 'motion.html',            label: 'Motion' },
+          { href: 'brand-assets.html',      label: 'Brand' },
+        ].map(link => (
+          <a key={link.href} href={link.href} style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 500,
+            color: 'var(--eo-ink-400)', textDecoration: 'none',
+            padding: '5px 12px', borderRadius: '6px',
+            border: '1px solid var(--border)', transition: 'all 0.2s',
+            letterSpacing: '0.03em',
+          }}>{link.label}</a>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', padding: '0 80px',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      {/* bg gradient */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 80% 60% at 60% 50%, rgba(30,207,163,0.07) 0%, transparent 70%)',
+      }}></div>
+      {/* grid lines */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+        backgroundSize: '80px 80px',
+      }}></div>
+      {/* large ghost text */}
+      <div style={{
+        position: 'absolute', right: '-40px', top: '50%', transform: 'translateY(-50%)',
+        fontFamily: 'var(--font-display)', fontWeight: 700,
+        fontSize: 'clamp(160px, 22vw, 320px)',
+        color: 'transparent', WebkitTextStroke: '1px rgba(30,207,163,0.06)',
+        letterSpacing: '-0.05em', lineHeight: 1, pointerEvents: 'none',
+        userSelect: 'none',
+      }}>EO</div>
+
+      <div style={{ position: 'relative', maxWidth: '680px' }}>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '12px',
+          color: 'var(--eo-orange-400)', letterSpacing: '0.15em',
+          textTransform: 'uppercase', marginBottom: '20px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+        }}>
+          <span style={{
+            display: 'inline-block', width: '28px', height: '1px',
+            background: 'var(--eo-orange-400)',
+          }}></span>
+          Design System — 2025
+        </div>
+        <h1 style={{
+          fontFamily: 'var(--font-display)', fontWeight: 700,
+          fontSize: 'clamp(48px, 7vw, 96px)', lineHeight: 0.95,
+          letterSpacing: '-0.04em', marginBottom: '28px',
+        }}>
+          <span style={{ display: 'block' }}>Eureka</span>
+          <span style={{
+            display: 'block',
+            background: 'linear-gradient(135deg, #52e2bc 0%, #1ecfa3 40%, #0fb389 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>Orange.</span>
+        </h1>
+        <p style={{
+          fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 400,
+          color: 'var(--eo-ink-300)', lineHeight: 1.7, maxWidth: '480px',
+          marginBottom: '40px',
+        }}>
+          発見の瞬間を可視化するデザイン言語。複数プロダクトにわたる、一貫性と個性を両立させるトークン・コンポーネント体系。
+        </p>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <a href="#Colors" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'var(--eo-orange-400)', color: '#0d0d0b',
+            fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600,
+            padding: '12px 24px', borderRadius: '8px', textDecoration: 'none',
+            transition: 'all 0.2s',
+          }}>
+            Explore →
+          </a>
+          <a href="tokens.html" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            color: 'var(--eo-ink-200)', border: '1px solid var(--border)',
+            fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 500,
+            padding: '12px 24px', borderRadius: '8px', textDecoration: 'none',
+            transition: 'all 0.2s',
+          }}>
+            Token Reference
+          </a>
+        </div>
+      </div>
+
+      {/* stats */}
+      <div style={{
+        position: 'absolute', bottom: '48px', left: '80px',
+        display: 'flex', gap: '48px',
+      }}>
+        {[
+          { n: '10', label: 'Color stops' },
+          { n: '12', label: 'Type steps' },
+          { n: '12', label: 'Spacing tokens' },
+          { n: '6',  label: 'Shadow layers' },
+        ].map(s => (
+          <div key={s.label}>
+            <div style={{
+              fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700,
+              letterSpacing: '-0.03em',
+              background: 'linear-gradient(135deg, #fff 0%, #9b9a91 100%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>{s.n}</div>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '11px',
+              color: 'var(--eo-ink-500)', letterSpacing: '0.08em',
+            }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Colors Section ───────────────────────────────────────────────────────────
+function ColorSwatch({ color }) {
+  const [copied, setCopied] = useState(false);
+  const light = isLight(color.value);
+  const copy = () => {
+    navigator.clipboard?.writeText(color.value).catch(()=>{});
+    setCopied(true);
+    setTimeout(()=>setCopied(false), 1500);
+  };
+  return (
+    <button onClick={copy} style={{
+      background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+      padding: 0, width: '100%',
+    }}>
+      <div style={{
+        height: '72px', background: color.value, borderRadius: '8px',
+        marginBottom: '8px', position: 'relative',
+        border: color.value === '#ffffff' ? '1px solid rgba(0,0,0,0.1)' : 'none',
+        transition: 'transform 0.15s, box-shadow 0.15s',
+      }}>
+        {copied && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.35)', borderRadius: '8px',
+            fontSize: '18px',
+          }}>✓</div>
+        )}
+      </div>
+      <div style={{
+        fontFamily: 'var(--font-display)', fontSize: '13px', fontWeight: 600,
+        color: 'var(--text-primary)', marginBottom: '2px',
+      }}>{color.label}</div>
+      <div style={{
+        fontFamily: 'var(--font-mono)', fontSize: '11px',
+        color: 'var(--eo-ink-400)',
+      }}>{color.value}</div>
+    </button>
+  );
+}
+
+function ColorsSection() {
+  return (
+    <section id="Colors" data-section="Colors" style={{ padding: '120px 80px 80px' }}>
+      <SectionLabel>01 — Color Palette</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px', lineHeight: 1,
+      }}>Colors</h2>
+      <p style={{
+        color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '64px',
+        maxWidth: '480px',
+      }}>すべての色はトークンで管理され、プロダクト間で一貫した印象を生み出します。</p>
+
+      {/* Orange scale */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '12px',
+          color: 'var(--eo-ink-400)', letterSpacing: '0.08em', marginBottom: '20px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+        }}>
+          <span style={{ color: 'var(--eo-orange-400)' }}>─── </span>
+          Orange Scale — Primary Brand
+        </div>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '10px',
+        }}>
+          {COLORS.orange.map(c => <ColorSwatch key={c.name} color={c} />)}
+        </div>
+      </div>
+
+      {/* Ink scale */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '12px',
+          color: 'var(--eo-ink-400)', letterSpacing: '0.08em', marginBottom: '20px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+        }}>
+          <span style={{ color: 'var(--eo-ink-400)' }}>─── </span>
+          Ink Scale — Neutral
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(11, 1fr)', gap: '10px' }}>
+          {COLORS.ink.map(c => <ColorSwatch key={c.name} color={c} />)}
+        </div>
+      </div>
+
+      {/* Status + Accent */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px' }}>
+        <div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '12px',
+            color: 'var(--eo-ink-400)', letterSpacing: '0.08em', marginBottom: '20px',
+          }}>─── Status</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+            {COLORS.status.map(c => <ColorSwatch key={c.name} color={c} />)}
+          </div>
+        </div>
+        <div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '12px',
+            color: 'var(--eo-ink-400)', letterSpacing: '0.08em', marginBottom: '20px',
+          }}>─── Accent</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {COLORS.accent.map(c => <ColorSwatch key={c.name} color={c} />)}
+          </div>
+        </div>
+      </div>
+
+      {/* Usage guide */}
+      <div style={{
+        marginTop: '64px', padding: '32px',
+        background: 'var(--surface-raised)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px',
+      }}>
+        {[
+          { swatch: '#1ecfa3', role: 'Primary Actions', desc: 'CTAs, links, interactive highlights. Use orange-400 on dark backgrounds.' },
+          { swatch: '#1a1a17', role: 'Surfaces', desc: 'Dark layered system. ink-800 → ink-700 → ink-600 for depth hierarchy.' },
+          { swatch: '#9b9a91', role: 'Body Text', desc: 'ink-0 (primary) → ink-300 (secondary) → ink-500 (tertiary / disabled).' },
+        ].map(g => (
+          <div key={g.role} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '10px',
+              background: g.swatch, flexShrink: 0,
+              border: g.swatch === '#1a1a17' ? '1px solid rgba(255,255,255,0.1)' : 'none',
+            }}></div>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '6px' }}>{g.role}</div>
+              <div style={{ fontSize: '13px', color: 'var(--eo-ink-400)', lineHeight: 1.6 }}>{g.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Typography Section ───────────────────────────────────────────────────────
+function TypographySection() {
+  const [activeFont, setActiveFont] = useState('display');
+  const sampleText = activeFont === 'mono' ? 'const eureka = true;' : '発見の瞬間';
+
+  return (
+    <section id="Typography" data-section="Typography" style={{ padding: '80px 80px' }}>
+      <SectionLabel>02 — Typography</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px',
+      }}>Typography</h2>
+      <p style={{ color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '48px' }}>
+        2種のフォントで人格を表現。見出しに強さ、コードに精密さ。
+      </p>
+
+      {/* Font switcher */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
+        {[
+          { id: 'display', label: 'Space Grotesk' },
+          { id: 'mono',    label: 'DM Mono' },
+          { id: 'code',    label: 'Space Mono' },
+        ].map(f => (
+          <button key={f.id} onClick={() => setActiveFont(f.id)} style={{
+            background: activeFont === f.id ? 'rgba(30,207,163,0.12)' : 'var(--surface-raised)',
+            border: activeFont === f.id ? '1px solid rgba(30,207,163,0.4)' : '1px solid var(--border)',
+            color: activeFont === f.id ? 'var(--eo-orange-400)' : 'var(--eo-ink-300)',
+            fontFamily: f.id === 'display' ? 'var(--font-display)' : f.id === 'mono' ? 'var(--font-mono)' : 'var(--font-code)',
+            fontSize: '13px', fontWeight: 500,
+            padding: '8px 20px', borderRadius: '8px', cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}>{f.label}</button>
+        ))}
+      </div>
+
+      {/* Type scale */}
+      <div style={{
+        background: 'var(--surface-raised)', border: '1px solid var(--border)',
+        borderRadius: '16px', overflow: 'hidden',
+      }}>
+        {TYPE_SCALE.map((t, i) => {
+          const sizes = ['12px','14px','16px','18px','20px','24px','30px','36px','48px','60px','72px','96px'];
+          return (
+            <div key={t.token} style={{
+              display: 'grid', gridTemplateColumns: '200px 1fr 180px',
+              alignItems: 'center',
+              padding: '16px 28px',
+              borderBottom: i < TYPE_SCALE.length-1 ? '1px solid var(--border)' : 'none',
+              gap: '24px',
+            }}>
+              <div>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '11px',
+                  color: 'var(--eo-orange-400)', marginBottom: '4px',
+                }}>{t.token}</div>
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '11px',
+                  color: 'var(--eo-ink-500)',
+                }}>{t.size}</div>
+              </div>
+              <div style={{
+                fontFamily: activeFont === 'display' ? 'var(--font-display)' : activeFont === 'mono' ? 'var(--font-mono)' : 'var(--font-code)',
+                fontSize: sizes[i],
+                fontWeight: activeFont === 'display' ? 600 : 400,
+                lineHeight: 1.2,
+                overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                letterSpacing: i >= 6 ? '-0.03em' : 'normal',
+              }}>
+                {activeFont === 'mono' ? 'const eureka = true;' : activeFont === 'code' ? 'eureka_orange()' : 'EurekaOrange'}
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: '11px',
+                color: 'var(--eo-ink-500)', textAlign: 'right', lineHeight: 1.5,
+              }}>{t.usage}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Font specimens */}
+      <div style={{
+        marginTop: '48px', display: 'grid', gridTemplateColumns: '1fr 1fr',
+        gap: '24px',
+      }}>
+        {[
+          { font: 'var(--font-display)', name: 'Space Grotesk', role: 'Display / UI', weights: [300,400,500,600,700], text: 'The quick discovery' },
+          { font: 'var(--font-mono)',    name: 'DM Mono',        role: 'Data / Code', weights: [300,400,500], text: 'eureka.discover()' },
+        ].map(spec => (
+          <div key={spec.name} style={{
+            background: 'var(--surface-raised)', border: '1px solid var(--border)',
+            borderRadius: '16px', padding: '32px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{spec.name}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--eo-ink-400)' }}>{spec.role}</div>
+              </div>
+            </div>
+            <div style={{ fontFamily: spec.font, fontSize: '36px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '24px', lineHeight: 1.1 }}>
+              {spec.text}
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {spec.weights.map(w => (
+                <div key={w} style={{ fontFamily: spec.font, fontWeight: w, fontSize: '13px', color: 'var(--eo-ink-300)' }}>
+                  {w}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Spacing Section ──────────────────────────────────────────────────────────
+function SpacingSection() {
+  return (
+    <section id="Spacing" data-section="Spacing" style={{ padding: '80px 80px' }}>
+      <SectionLabel>03 — Spacing &amp; Layout</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px',
+      }}>Spacing</h2>
+      <p style={{ color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '64px' }}>
+        4pxベースグリッド。すべての余白・サイズはこのスケールから派生します。
+      </p>
+
+      {/* Spacing bars */}
+      <div style={{ marginBottom: '64px' }}>
+        {SPACING.map(s => (
+          <div key={s.token} style={{
+            display: 'grid', gridTemplateColumns: '160px 1fr 80px',
+            alignItems: 'center', gap: '20px', marginBottom: '12px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '12px',
+              color: 'var(--eo-ink-400)',
+            }}>
+              <span style={{ color: 'var(--eo-orange-400)' }}>{s.token}</span>
+            </div>
+            <div style={{
+              height: '20px', borderRadius: '4px',
+              background: 'linear-gradient(90deg, #1ecfa3 0%, rgba(30,207,163,0.3) 100%)',
+              width: `${Math.min(s.px * 3.5, 600)}px`,
+              minWidth: '4px',
+              transition: 'width 0.3s',
+            }}></div>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '12px',
+              color: 'var(--eo-ink-300)', textAlign: 'right',
+            }}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Border radius */}
+      <div style={{ marginBottom: '64px' }}>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '12px',
+          color: 'var(--eo-ink-400)', letterSpacing: '0.08em', marginBottom: '24px',
+        }}>─── Border Radius</div>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          {RADII.map(r => (
+            <div key={r.name} style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '80px', height: '80px',
+                background: 'var(--surface-raised)',
+                border: '1px solid rgba(30,207,163,0.3)',
+                borderRadius: Math.min(r.px, 40) + 'px',
+                marginBottom: '10px',
+              }}></div>
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: '11px',
+                color: 'var(--eo-orange-400)', marginBottom: '2px',
+              }}>radius-{r.name}</div>
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: '11px',
+                color: 'var(--eo-ink-500)',
+              }}>{r.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Shadows Section ──────────────────────────────────────────────────────────
+function ShadowsSection() {
+  return (
+    <section id="Shadows" data-section="Shadows" style={{ padding: '0 80px 80px' }}>
+      <SectionLabel>04 — Shadows</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px',
+      }}>Shadows</h2>
+      <p style={{ color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '64px' }}>
+        深度と発光を演出する6段階のシャドウシステム。
+      </p>
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px',
+      }}>
+        {SHADOWS.map(s => (
+          <div key={s.name} style={{
+            background: s.orange ? 'rgba(30,207,163,0.06)' : 'var(--surface-raised)',
+            border: `1px solid ${s.orange ? 'rgba(30,207,163,0.2)' : 'var(--border)'}`,
+            borderRadius: '16px', padding: '32px',
+          }}>
+            <div style={{
+              width: '64px', height: '64px', borderRadius: '12px',
+              background: s.orange ? 'var(--eo-orange-500)' : 'var(--surface-overlay)',
+              boxShadow: s.css, marginBottom: '24px',
+            }}></div>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>shadow-{s.name}</div>
+            <CopyBadge text={s.token} />
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '10px',
+              color: 'var(--eo-ink-500)', marginTop: '8px', lineHeight: 1.6,
+            }}>{s.css}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Components Section ───────────────────────────────────────────────────────
+function ComponentsSection() {
+  const [inputVal, setInputVal] = useState('');
+  const [toggle, setToggle] = useState(false);
+  const [badge, setBadge] = useState('default');
+
+  return (
+    <section id="Components" data-section="Components" style={{ padding: '0 80px 80px' }}>
+      <SectionLabel>05 — Components</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px',
+      }}>Components</h2>
+      <p style={{ color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '64px' }}>
+        すべてのコンポーネントはトークンで構成され、テーマ変更に対応します。
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+
+        {/* Buttons */}
+        <div style={{
+          background: 'var(--surface-raised)', border: '1px solid var(--border)',
+          borderRadius: '16px', padding: '32px',
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--eo-ink-300)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>// Buttons</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              { label: 'Primary',  bg: 'var(--eo-orange-400)', color: '#0d0d0b', border: 'none' },
+              { label: 'Secondary', bg: 'transparent', color: 'var(--eo-orange-400)', border: '1px solid rgba(30,207,163,0.5)' },
+              { label: 'Ghost',    bg: 'rgba(255,255,255,0.05)', color: 'var(--eo-ink-200)', border: '1px solid var(--border)' },
+              { label: 'Danger',   bg: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' },
+            ].map(btn => (
+              <button key={btn.label} style={{
+                background: btn.bg, color: btn.color, border: btn.border,
+                fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600,
+                padding: '11px 24px', borderRadius: '8px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                transition: 'all 0.2s', width: '100%',
+              }}>
+                <span>{btn.label}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', opacity: 0.6 }}>btn-{btn.label.toLowerCase()}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Badges + Tags */}
+        <div style={{
+          background: 'var(--surface-raised)', border: '1px solid var(--border)',
+          borderRadius: '16px', padding: '32px',
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--eo-ink-300)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>// Badges &amp; Tags</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px' }}>
+            {[
+              { label: 'New', bg: 'rgba(30,207,163,0.15)', color: '#52e2bc', border: 'rgba(30,207,163,0.3)' },
+              { label: 'Beta', bg: 'rgba(168,85,247,0.15)', color: '#c084fc', border: 'rgba(168,85,247,0.3)' },
+              { label: 'Stable', bg: 'rgba(34,197,94,0.12)', color: '#4ade80', border: 'rgba(34,197,94,0.3)' },
+              { label: 'Deprecated', bg: 'rgba(239,68,68,0.12)', color: '#f87171', border: 'rgba(239,68,68,0.3)' },
+              { label: 'Alpha', bg: 'rgba(6,182,212,0.12)', color: '#22d3ee', border: 'rgba(6,182,212,0.3)' },
+            ].map(b => (
+              <span key={b.label} style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '4px 12px', borderRadius: '9999px',
+                background: b.bg, color: b.color,
+                border: `1px solid ${b.border}`,
+                fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 500,
+                letterSpacing: '0.05em',
+              }}>{b.label}</span>
+            ))}
+          </div>
+          {/* Input */}
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="text"
+              placeholder="Search tokens…"
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              style={{
+                width: '100%', padding: '10px 16px',
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid ${inputVal ? 'rgba(30,207,163,0.5)' : 'var(--border)'}`,
+                borderRadius: '8px', color: 'var(--text-primary)',
+                fontFamily: 'var(--font-display)', fontSize: '14px',
+                outline: 'none', transition: 'border-color 0.2s',
+              }}
+            />
+          </div>
+          {/* Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button onClick={() => setToggle(!toggle)} style={{
+              width: '44px', height: '24px', borderRadius: '12px', border: 'none',
+              background: toggle ? 'var(--eo-orange-400)' : 'var(--eo-ink-600)',
+              cursor: 'pointer', position: 'relative', transition: 'background 0.25s',
+            }}>
+              <span style={{
+                position: 'absolute', top: '3px',
+                left: toggle ? '23px' : '3px',
+                width: '18px', height: '18px', borderRadius: '50%',
+                background: '#fff', transition: 'left 0.25s',
+                display: 'block',
+              }}></span>
+            </button>
+            <span style={{ fontSize: '13px', color: 'var(--eo-ink-300)' }}>
+              {toggle ? 'Enabled' : 'Disabled'}
+            </span>
+          </div>
+        </div>
+
+        {/* Cards */}
+        <div style={{
+          background: 'var(--surface-raised)', border: '1px solid var(--border)',
+          borderRadius: '16px', padding: '32px',
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--eo-ink-300)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>// Cards</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { title: 'Default Card', sub: 'surface-raised + border', glow: false },
+              { title: 'Highlight Card', sub: 'orange border accent', glow: true },
+            ].map(card => (
+              <div key={card.title} style={{
+                padding: '20px',
+                background: card.glow ? 'rgba(30,207,163,0.05)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${card.glow ? 'rgba(30,207,163,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                borderRadius: '12px',
+                boxShadow: card.glow ? 'var(--shadow-glow-sm)' : 'none',
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{card.title}</div>
+                <div style={{ fontSize: '12px', color: 'var(--eo-ink-400)', fontFamily: 'var(--font-mono)' }}>{card.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Code block */}
+        <div style={{
+          background: 'var(--surface-raised)', border: '1px solid var(--border)',
+          borderRadius: '16px', padding: '32px',
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--eo-ink-300)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>// Code Block</div>
+          <div style={{
+            background: '#080807',
+            border: '1px solid var(--border)',
+            borderRadius: '10px', padding: '20px',
+            fontFamily: 'var(--font-code)', fontSize: '13px', lineHeight: 1.8,
+          }}>
+            <div><span style={{ color: '#9b9a91' }}>// EurekaOrange tokens</span></div>
+            <div>
+              <span style={{ color: '#a855f7' }}>import</span>
+              <span style={{ color: '#c8c7c0' }}> {'{'} tokens {'}'} </span>
+              <span style={{ color: '#a855f7' }}>from</span>
+              <span style={{ color: '#52e2bc' }}> 'eureka-orange'</span>
+            </div>
+            <div style={{ marginTop: '8px' }}>
+              <span style={{ color: '#06b6d4' }}>const</span>
+              <span style={{ color: '#c8c7c0' }}> primary </span>
+              <span style={{ color: '#9b9a91' }}>=</span>
+              <span style={{ color: '#c8c7c0' }}> tokens.</span>
+              <span style={{ color: '#1ecfa3' }}>orange</span>
+              <span style={{ color: '#c8c7c0' }}>[</span>
+              <span style={{ color: '#84cc16' }}>400</span>
+              <span style={{ color: '#c8c7c0' }}>]</span>
+            </div>
+            <div>
+              <span style={{ color: '#9b9a91' }}>// → </span>
+              <span style={{ color: '#52e2bc' }}>'#1ecfa3'</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+// ── Brand Section ────────────────────────────────────────────────────────────
+function BrandSection() {
+  return (
+    <section id="Brand" data-section="Brand" style={{ padding: '0 80px 120px' }}>
+      <SectionLabel>06 — Brand</SectionLabel>
+      <h2 style={{
+        fontFamily: 'var(--font-display)', fontSize: '48px', fontWeight: 700,
+        letterSpacing: '-0.03em', marginBottom: '12px',
+      }}>Brand</h2>
+      <p style={{ color: 'var(--eo-ink-300)', fontSize: '16px', marginBottom: '64px' }}>
+        ロゴ・シグネチャー・ブランドモーメントのガイドライン。
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+
+        {/* Logo showcase */}
+        <div style={{
+          background: 'var(--surface-raised)', border: '1px solid var(--border)',
+          borderRadius: '20px', padding: '48px',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          position: 'relative', overflow: 'hidden',
+          minHeight: '280px',
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse 70% 70% at 50% 50%, rgba(30,207,163,0.08) 0%, transparent 70%)',
+          }}></div>
+          {/* Logo mark */}
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ marginBottom: '24px' }}>
+            <circle cx="40" cy="40" r="38" stroke="#1ecfa3" strokeWidth="2"/>
+            <circle cx="40" cy="40" r="38" stroke="url(#logoGrad)" strokeWidth="2" opacity="0.5"/>
+            <path d="M26 28 L40 20 L54 28 L54 52 L40 60 L26 52 Z" fill="#1ecfa3" opacity="0.12"/>
+            <path d="M40 20 L54 28 L54 52" stroke="#1ecfa3" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M26 28 L40 20" stroke="#52e2bc" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M26 52 L40 60 L54 52" stroke="#1ecfa3" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+            <circle cx="40" cy="40" r="7" fill="#1ecfa3" opacity="0.2"/>
+            <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+            <line x1="40" y1="28" x2="40" y2="36" stroke="#8eefd4" strokeWidth="1.5" strokeLinecap="round"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="2" y1="2" x2="78" y2="78">
+                <stop offset="0%" stopColor="#52e2bc"/>
+                <stop offset="100%" stopColor="#0fb389"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700,
+            letterSpacing: '-0.03em', marginBottom: '8px',
+          }}>EurekaOrange</div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '12px',
+            color: 'var(--eo-ink-400)', letterSpacing: '0.1em',
+          }}>DESIGN SYSTEM</div>
+        </div>
+
+        {/* Logo variations */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: '16px',
+        }}>
+          {/* Dark bg */}
+          <div style={{
+            background: '#080807', border: '1px solid var(--border)',
+            borderRadius: '16px', padding: '24px',
+            display: 'flex', alignItems: 'center', gap: '12px', flex: 1,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="38" stroke="#1ecfa3" strokeWidth="2"/>
+              <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+              <path d="M40 20 L54 28 L54 52" stroke="#1ecfa3" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              <path d="M26 28 L40 20" stroke="#52e2bc" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '16px' }}>EurekaOrange</span>
+          </div>
+          {/* Light bg */}
+          <div style={{
+            background: '#f5f5f3', border: '1px solid rgba(0,0,0,0.08)',
+            borderRadius: '16px', padding: '24px',
+            display: 'flex', alignItems: 'center', gap: '12px', flex: 1,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="38" stroke="#0fb389" strokeWidth="2"/>
+              <circle cx="40" cy="40" r="4" fill="#0fb389"/>
+              <path d="M40 20 L54 28 L54 52" stroke="#0fb389" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              <path d="M26 28 L40 20" stroke="#098f6d" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '16px', color: '#0d0d0b' }}>EurekaOrange</span>
+          </div>
+          {/* Orange bg */}
+          <div style={{
+            background: 'linear-gradient(135deg, #1ecfa3 0%, #0fb389 100%)',
+            borderRadius: '16px', padding: '24px',
+            display: 'flex', alignItems: 'center', gap: '12px', flex: 1,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="38" stroke="rgba(0,0,0,0.3)" strokeWidth="2"/>
+              <circle cx="40" cy="40" r="4" fill="rgba(0,0,0,0.5)"/>
+              <path d="M40 20 L54 28 L54 52" stroke="rgba(0,0,0,0.5)" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+              <path d="M26 28 L40 20" stroke="rgba(0,0,0,0.3)" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '16px', color: '#0d0d0b' }}>EurekaOrange</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Brand voice */}
+      <div style={{
+        background: 'var(--surface-raised)', border: '1px solid var(--border)',
+        borderRadius: '20px', padding: '40px',
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '40px',
+      }}>
+        {[
+          { word: 'Bold', ja: '大胆', desc: '迷いなく、確信を持って。大きく・鮮やかに・はっきりと。' },
+          { word: 'Precise', ja: '精密', desc: 'ピクセルに意図がある。余白も、色も、タイポも偶然ではない。' },
+          { word: 'Alive', ja: '躍動', desc: '静止画にも動きを感じさせる。エネルギーが画面から溢れ出す。' },
+        ].map(v => (
+          <div key={v.word}>
+            <div style={{
+              fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 700,
+              letterSpacing: '-0.04em',
+              background: 'linear-gradient(135deg, #52e2bc 0%, #1ecfa3 100%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              marginBottom: '4px',
+            }}>{v.word}</div>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '12px',
+              color: 'var(--eo-ink-500)', marginBottom: '12px',
+            }}>{v.ja}</div>
+            <div style={{ fontSize: '14px', color: 'var(--eo-ink-300)', lineHeight: 1.7 }}>{v.desc}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Tweaks ───────────────────────────────────────────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#1ecfa3",
+  "darkMode": true,
+  "fontScale": 1,
+  "borderRadius": "medium"
+}/*EDITMODE-END*/;
+
+function TweaksApp() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--eo-orange-400', tweaks.accentColor);
+    root.style.setProperty('--accent', tweaks.accentColor);
+
+    if (!tweaks.darkMode) {
+      root.style.setProperty('--bg', '#f5f5f3');
+      root.style.setProperty('--surface', '#ffffff');
+      root.style.setProperty('--surface-raised', '#f5f5f3');
+      root.style.setProperty('--border', 'rgba(0,0,0,0.08)');
+      root.style.setProperty('--text-primary', '#111110');
+      root.style.setProperty('--text-secondary', '#484740');
+      root.style.setProperty('--text-tertiary', '#9b9a91');
+    } else {
+      root.style.setProperty('--bg', '#0d0d0b');
+      root.style.setProperty('--surface', '#131311');
+      root.style.setProperty('--surface-raised', '#1a1a17');
+      root.style.setProperty('--border', 'rgba(255,255,255,0.07)');
+      root.style.setProperty('--text-primary', '#ffffff');
+      root.style.setProperty('--text-secondary', '#9b9a91');
+      root.style.setProperty('--text-tertiary', '#484740');
+    }
+
+    const rMap = { small: '4px', medium: '8px', large: '16px' };
+    root.style.setProperty('--radius-md', rMap[tweaks.borderRadius] || '8px');
+  }, [tweaks]);
+
+  return (
+    <TweaksPanel>
+      <TweakColor label="Accent Color" value={tweaks.accentColor} onChange={v => setTweak('accentColor', v)} />
+      <TweakToggle label="Dark Mode" value={tweaks.darkMode} onChange={v => setTweak('darkMode', v)} />
+      <TweakSlider label="Font Scale" min={0.8} max={1.3} step={0.05} value={tweaks.fontScale} onChange={v => setTweak('fontScale', v)} />
+      <TweakRadio label="Border Radius" options={['small','medium','large']} value={tweaks.borderRadius} onChange={v => setTweak('borderRadius', v)} />
+    </TweaksPanel>
+  );
+}
+
+// ── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <>
+      <Nav />
+      <div style={{ paddingTop: '56px' }}>
+        <Hero />
+        <ColorsSection />
+        <TypographySection />
+        <SpacingSection />
+        <ShadowsSection />
+        <ComponentsSection />
+        <BrandSection />
+      </div>
+      <TweaksApp />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

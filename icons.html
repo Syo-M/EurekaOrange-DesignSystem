@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Icon System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0b;--surface:#131311;--raised:#1a1a17;--border:rgba(255,255,255,0.07);
+  --jade:#1ecfa3;--jade-l:#52e2bc;--jade-d:#0fb389;
+  --t1:#fff;--t2:#9b9a91;--t3:#6e6d63;--t4:#484740;
+  --fd:'Space Grotesk',sans-serif;--fm:'DM Mono',monospace;
+}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:#2e2d28;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--jade)}
+::selection{background:rgba(30,207,163,0.25)}
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+/* ── Duotone icon component ──────────────────────────── */
+/* Each icon uses: primary (full opacity) + secondary (0.3 opacity) */
+function DuoIcon({ paths, size = 24, primary, secondary }) {
+  const p = primary || 'var(--jade)';
+  const s = secondary || 'var(--jade-l)';
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {paths.map((path, i) => (
+        path.type === 'fill' ? (
+          <path key={i} d={path.d} fill={i === 0 ? s : p} opacity={i === 0 ? 0.3 : 1} />
+        ) : path.type === 'circle' ? (
+          <circle key={i} cx={path.cx} cy={path.cy} r={path.r}
+            fill={i === 0 ? s : p} opacity={i === 0 ? 0.3 : 1} />
+        ) : path.type === 'rect' ? (
+          <rect key={i} x={path.x} y={path.y} width={path.w} height={path.h} rx={path.rx||0}
+            fill={i === 0 ? s : p} opacity={i === 0 ? 0.3 : 1} />
+        ) : (
+          <path key={i} d={path.d}
+            stroke={i === 0 ? s : p} strokeWidth={path.sw || 1.5}
+            strokeLinecap="round" strokeLinejoin="round"
+            opacity={i === 0 ? 0.35 : 1} fill="none" />
+        )
+      ))}
+    </svg>
+  );
+}
+
+/* ── Icon definitions — 56 icons ────────────────────── */
+const ICONS = [
+  /* ── NAVIGATION (12) ── */
+  { id: 'home', name: 'Home', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z' },
+    { type: 'fill', d: 'M9 21V12h6v9H9z' },
+  ]},
+  { id: 'menu', name: 'Menu', category: 'Navigation', paths: [
+    { type: 'stroke', d: 'M3 6h18M3 12h18M3 18h18', sw: 2 },
+    { type: 'fill', d: 'M3 11h18v2H3z' },
+  ]},
+  { id: 'back', name: 'Back', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z' },
+    { type: 'fill', d: 'M4 11h8v2H4z' },
+  ]},
+  { id: 'forward', name: 'Forward', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M4 13h12.17l-5.59 5.59L12 20l8-8-8-8-1.41 1.41L16.17 11H4v2z' },
+    { type: 'fill', d: 'M12 11h8v2h-8z' },
+  ]},
+  { id: 'close', name: 'Close', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M19 5L5 19' },
+    { type: 'stroke', d: 'M5 5l14 14M19 5L5 19', sw: 2 },
+  ]},
+  { id: 'chevron-down', name: 'Chevron Down', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M12 15.5l-6-6 1.41-1.41L12 12.67l4.59-4.58L18 9.5l-6 6z' },
+    { type: 'fill', d: 'M6 10l6 5 6-5v1.5l-6 5-6-5V10z' },
+  ]},
+  { id: 'chevron-right', name: 'Chevron Right', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z' },
+    { type: 'fill', d: 'M9 7l5 5-5 5H7.5l5-5-5-5H9z' },
+  ]},
+  { id: 'sidebar', name: 'Sidebar', category: 'Navigation', paths: [
+    { type: 'rect', x: 3, y: 3, w: 18, h: 18, rx: 2 },
+    { type: 'rect', x: 3, y: 3, w: 7, h: 18, rx: 2 },
+  ]},
+  { id: 'grid', name: 'Grid', category: 'Navigation', paths: [
+    { type: 'rect', x: 3, y: 3, w: 7, h: 7, rx: 1 },
+    { type: 'rect', x: 14, y: 3, w: 7, h: 7, rx: 1 },
+    { type: 'rect', x: 3, y: 14, w: 7, h: 7, rx: 1 },
+    { type: 'rect', x: 14, y: 14, w: 7, h: 7, rx: 1 },
+  ]},
+  { id: 'list', name: 'List', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z' },
+    { type: 'fill', d: 'M3 6h4v2H3zM3 11h4v2H3zM3 16h4v2H3z' },
+  ]},
+  { id: 'external-link', name: 'External Link', category: 'Navigation', paths: [
+    { type: 'fill', d: 'M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6' },
+    { type: 'stroke', d: 'M15 3h6v6M10 14L21 3', sw: 2 },
+  ]},
+  { id: 'dots', name: 'More', category: 'Navigation', paths: [
+    { type: 'circle', cx: 5, cy: 12, r: 1.5 },
+    { type: 'circle', cx: 12, cy: 12, r: 1.5 },
+    { type: 'circle', cx: 19, cy: 12, r: 1.5 },
+  ]},
+
+  /* ── UI GENERAL (16) ── */
+  { id: 'search', name: 'Search', category: 'UI', paths: [
+    { type: 'fill', d: 'M11 3a8 8 0 100 16A8 8 0 0011 3z' },
+    { type: 'stroke', d: 'M21 21l-4.35-4.35', sw: 2.5 },
+  ]},
+  { id: 'filter', name: 'Filter', category: 'UI', paths: [
+    { type: 'fill', d: 'M4 4h16l-6 7.5V19l-4-2v-5.5L4 4z' },
+    { type: 'stroke', d: 'M4 4h16l-6 7.5V19l-4-2v-5.5L4 4z', sw: 1.5 },
+  ]},
+  { id: 'sort', name: 'Sort', category: 'UI', paths: [
+    { type: 'stroke', d: 'M3 6h18M6 12h12M9 18h6', sw: 2 },
+    { type: 'fill', d: 'M3 5h18v2H3zM6 11h12v2H6zM9 17h6v2H9z' },
+  ]},
+  { id: 'settings', name: 'Settings', category: 'UI', paths: [
+    { type: 'fill', d: 'M12 8a4 4 0 100 8 4 4 0 000-8z' },
+    { type: 'fill', d: 'M19.43 12.97c.04-.32.07-.64.07-.97s-.03-.66-.07-.97l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.97l-2.11 1.66c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z' },
+  ]},
+  { id: 'bell', name: 'Notifications', category: 'UI', paths: [
+    { type: 'fill', d: 'M12 2a7 7 0 00-7 7v3.5L3 14v1h18v-1l-2-1.5V9a7 7 0 00-7-7z' },
+    { type: 'fill', d: 'M10 18a2 2 0 104 0h-4z' },
+  ]},
+  { id: 'user', name: 'User', category: 'UI', paths: [
+    { type: 'fill', d: 'M12 2a5 5 0 100 10A5 5 0 0012 2z' },
+    { type: 'fill', d: 'M2 20a10 10 0 0120 0H2z' },
+  ]},
+  { id: 'lock', name: 'Lock', category: 'UI', paths: [
+    { type: 'rect', x: 3, y: 11, w: 18, h: 11, rx: 2 },
+    { type: 'stroke', d: 'M7 11V7a5 5 0 0110 0v4', sw: 2 },
+  ]},
+  { id: 'unlock', name: 'Unlock', category: 'UI', paths: [
+    { type: 'rect', x: 3, y: 11, w: 18, h: 11, rx: 2 },
+    { type: 'stroke', d: 'M7 11V7a5 5 0 019.9-1', sw: 2 },
+  ]},
+  { id: 'copy', name: 'Copy', category: 'UI', paths: [
+    { type: 'rect', x: 8, y: 8, w: 13, h: 13, rx: 2 },
+    { type: 'stroke', d: 'M4 16H3a2 2 0 01-2-2V3a2 2 0 012-2h11a2 2 0 012 2v1', sw: 1.5 },
+  ]},
+  { id: 'download', name: 'Download', category: 'UI', paths: [
+    { type: 'fill', d: 'M3 17h18v2H3z' },
+    { type: 'stroke', d: 'M12 3v11M8 10l4 4 4-4', sw: 2 },
+  ]},
+  { id: 'upload', name: 'Upload', category: 'UI', paths: [
+    { type: 'fill', d: 'M3 17h18v2H3z' },
+    { type: 'stroke', d: 'M12 15V4M8 8l4-4 4 4', sw: 2 },
+  ]},
+  { id: 'share', name: 'Share', category: 'UI', paths: [
+    { type: 'stroke', d: 'M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8', sw: 2 },
+    { type: 'stroke', d: 'M16 6l-4-4-4 4M12 2v13', sw: 2 },
+  ]},
+  { id: 'eye', name: 'View', category: 'UI', paths: [
+    { type: 'fill', d: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' },
+    { type: 'circle', cx: 12, cy: 12, r: 3 },
+  ]},
+  { id: 'edit', name: 'Edit', category: 'UI', paths: [
+    { type: 'fill', d: 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7' },
+    { type: 'stroke', d: 'M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z', sw: 2 },
+  ]},
+  { id: 'trash', name: 'Delete', category: 'UI', paths: [
+    { type: 'stroke', d: 'M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6', sw: 2 },
+    { type: 'stroke', d: 'M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6', sw: 1.5 },
+  ]},
+  { id: 'plus', name: 'Add', category: 'UI', paths: [
+    { type: 'fill', d: 'M11 4h2v16h-2z' },
+    { type: 'fill', d: 'M4 11h16v2H4z' },
+  ]},
+
+  /* ── STATUS (12) ── */
+  { id: 'check-circle', name: 'Success', category: 'Status', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M7 12l3.5 3.5L17 9', sw: 2.5 },
+  ]},
+  { id: 'x-circle', name: 'Error', category: 'Status', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M15 9l-6 6M9 9l6 6', sw: 2.5 },
+  ]},
+  { id: 'alert-triangle', name: 'Warning', category: 'Status', paths: [
+    { type: 'fill', d: 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z' },
+    { type: 'stroke', d: 'M12 9v4M12 17h.01', sw: 2 },
+  ]},
+  { id: 'info-circle', name: 'Info', category: 'Status', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M12 8v4M12 16h.01', sw: 2 },
+  ]},
+  { id: 'check', name: 'Check', category: 'Status', paths: [
+    { type: 'fill', d: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z' },
+    { type: 'stroke', d: 'M5 12l4 4L19 6', sw: 2.5 },
+  ]},
+  { id: 'loading', name: 'Loading', category: 'Status', paths: [
+    { type: 'stroke', d: 'M12 2a10 10 0 010 20', sw: 2 },
+    { type: 'stroke', d: 'M12 2a10 10 0 0110 10', sw: 2 },
+  ]},
+  { id: 'clock', name: 'Pending', category: 'Status', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M12 6v6l4 2', sw: 2 },
+  ]},
+  { id: 'badge-check', name: 'Verified', category: 'Status', paths: [
+    { type: 'fill', d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+    { type: 'stroke', d: 'M9 12l2 2 4-4', sw: 2 },
+  ]},
+  { id: 'ban', name: 'Blocked', category: 'Status', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M4.93 4.93l14.14 14.14', sw: 2.5 },
+  ]},
+  { id: 'wifi-off', name: 'Offline', category: 'Status', paths: [
+    { type: 'stroke', d: 'M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 0114.08-2.56', sw: 2 },
+    { type: 'stroke', d: 'M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01', sw: 1.5 },
+  ]},
+  { id: 'refresh', name: 'Refresh', category: 'Status', paths: [
+    { type: 'stroke', d: 'M23 4v6h-6', sw: 2 },
+    { type: 'stroke', d: 'M20.49 15a9 9 0 11-2.12-9.36L23 10', sw: 2 },
+  ]},
+  { id: 'zap', name: 'Active', category: 'Status', paths: [
+    { type: 'fill', d: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
+    { type: 'stroke', d: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', sw: 1 },
+  ]},
+
+  /* ── BRAND (8) ── */
+  { id: 'eureka', name: 'Eureka', category: 'Brand', paths: [
+    { type: 'fill', d: 'M12 2a10 10 0 100 20A10 10 0 0012 2z' },
+    { type: 'stroke', d: 'M12 5v6M8 9l4-4 4 4M9 15h6M10 18h4', sw: 2 },
+  ]},
+  { id: 'discovery', name: 'Discovery', category: 'Brand', paths: [
+    { type: 'fill', d: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
+    { type: 'circle', cx: 12, cy: 12, r: 2 },
+  ]},
+  { id: 'token', name: 'Token', category: 'Brand', paths: [
+    { type: 'fill', d: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z' },
+    { type: 'fill', d: 'M12 6a6 6 0 100 12A6 6 0 0012 6z' },
+  ]},
+  { id: 'system', name: 'System', category: 'Brand', paths: [
+    { type: 'fill', d: 'M4 4h16v12H4z', rx: 2 },
+    { type: 'rect', x: 4, y: 4, w: 16, h: 12, rx: 2 },
+    { type: 'stroke', d: 'M8 20h8M12 16v4', sw: 2 },
+  ]},
+  { id: 'palette', name: 'Colors', category: 'Brand', paths: [
+    { type: 'fill', d: 'M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 .55 0 1.11-.05 1.64-.14.42-.08.66-.5.5-.89-.44-1.04-.23-2.2.56-2.99.77-.77 1.94-1.02 2.97-.64.27.1.57-.04.66-.31.07-.21.13-.43.17-.66.14-1.26.5-.41 1-.57 1.5-.57 2 0 2 0z' },
+    { type: 'circle', cx: 6.5, cy: 11.5, r: 1.5 },
+    { type: 'circle', cx: 9.5, cy: 7.5, r: 1.5 },
+    { type: 'circle', cx: 14.5, cy: 7.5, r: 1.5 },
+    { type: 'circle', cx: 17.5, cy: 11.5, r: 1.5 },
+  ]},
+  { id: 'type', name: 'Typography', category: 'Brand', paths: [
+    { type: 'stroke', d: 'M4 7V4h16v3', sw: 2 },
+    { type: 'stroke', d: 'M9 20h6M12 4v16', sw: 2 },
+  ]},
+  { id: 'layers', name: 'Layers', category: 'Brand', paths: [
+    { type: 'stroke', d: 'M12 2L2 7l10 5 10-5-10-5z', sw: 2 },
+    { type: 'stroke', d: 'M2 17l10 5 10-5M2 12l10 5 10-5', sw: 1.5 },
+  ]},
+  { id: 'component', name: 'Component', category: 'Brand', paths: [
+    { type: 'fill', d: 'M12 2l4.5 7.5H7.5L12 2z' },
+    { type: 'fill', d: 'M3.5 10.5h9v9h-9zM14.5 14.5a4 4 0 100 .001z' },
+  ]},
+
+  /* ── DATA (8) ── */
+  { id: 'chart-bar', name: 'Bar Chart', category: 'Data', paths: [
+    { type: 'fill', d: 'M18 3h2v18h-2zM11 8h2v13h-2zM4 13h2v8H4z' },
+    { type: 'stroke', d: 'M2 21h20', sw: 2 },
+  ]},
+  { id: 'chart-line', name: 'Line Chart', category: 'Data', paths: [
+    { type: 'stroke', d: 'M3 20l4-8 4 4 4-7 4 4', sw: 2.5 },
+    { type: 'fill', d: 'M3 18l4-8 4 4 4-7 4 4v4H3z' },
+  ]},
+  { id: 'chart-pie', name: 'Pie Chart', category: 'Data', paths: [
+    { type: 'fill', d: 'M21.21 15.89A10 10 0 118.11 2.79L12 12l9.21 3.89z' },
+    { type: 'stroke', d: 'M22 12A10 10 0 0012 2v10l9.21 3.89A10 10 0 0022 12z', sw: 1.5 },
+  ]},
+  { id: 'table-icon', name: 'Table', category: 'Data', paths: [
+    { type: 'rect', x: 2, y: 3, w: 20, h: 18, rx: 2 },
+    { type: 'stroke', d: 'M2 9h20M9 21V9', sw: 1.5 },
+  ]},
+  { id: 'database', name: 'Database', category: 'Data', paths: [
+    { type: 'fill', d: 'M12 2C6.48 2 2 4.24 2 7v10c0 2.76 4.48 5 10 5s10-2.24 10-5V7c0-2.76-4.48-5-10-5z' },
+    { type: 'stroke', d: 'M2 12c0 2.76 4.48 5 10 5s10-2.24 10-5M2 7c0 2.76 4.48 5 10 5s10-2.24 10-5', sw: 1.5 },
+  ]},
+  { id: 'trending-up', name: 'Trending Up', category: 'Data', paths: [
+    { type: 'stroke', d: 'M23 6l-9.5 9.5-5-5L1 18', sw: 2.5 },
+    { type: 'stroke', d: 'M17 6h6v6', sw: 2 },
+  ]},
+  { id: 'trending-down', name: 'Trending Down', category: 'Data', paths: [
+    { type: 'stroke', d: 'M23 18l-9.5-9.5-5 5L1 6', sw: 2.5 },
+    { type: 'stroke', d: 'M17 18h6v-6', sw: 2 },
+  ]},
+  { id: 'activity', name: 'Activity', category: 'Data', paths: [
+    { type: 'stroke', d: 'M22 12h-4l-3 9L9 3l-3 9H2', sw: 2.5 },
+    { type: 'fill', d: 'M9 3l6 18-3-9H2l7-9z' },
+  ]},
+];
+
+const CATEGORIES = ['All', 'Navigation', 'UI', 'Status', 'Brand', 'Data'];
+
+/* ── App ──────────────────────────────────────────────── */
+function App() {
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [search, setSearch] = useState('');
+  const [size, setSize] = useState(32);
+  const [selected, setSelected] = useState(null);
+  const [primaryColor, setPrimaryColor] = useState('#1ecfa3');
+  const [secondaryColor, setSecondaryColor] = useState('#52e2bc');
+  const [bgMode, setBgMode] = useState('dark');
+
+  const filtered = useMemo(() => ICONS.filter(icon => {
+    const matchCat = activeCategory === 'All' || icon.category === activeCategory;
+    const matchSearch = !search || icon.name.toLowerCase().includes(search.toLowerCase()) || icon.id.includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  }), [activeCategory, search]);
+
+  const catCount = (cat) => cat === 'All' ? ICONS.length : ICONS.filter(i => i.category === cat).length;
+
+  const cardBg = bgMode === 'dark' ? '#1a1a17' : bgMode === 'light' ? '#f2f2ef' : '#0d0d0b';
+  const cardBorder = bgMode === 'dark' ? 'rgba(255,255,255,0.07)' : bgMode === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(30,207,163,0.15)';
+
+  /* SVG export */
+  const exportSVG = (icon) => {
+    const svgParts = icon.paths.map((path, i) => {
+      const col = i === 0 ? secondaryColor : primaryColor;
+      const op = i === 0 ? 0.3 : 1;
+      if (path.type === 'fill') return `<path d="${path.d}" fill="${col}" opacity="${op}"/>`;
+      if (path.type === 'circle') return `<circle cx="${path.cx}" cy="${path.cy}" r="${path.r}" fill="${col}" opacity="${op}"/>`;
+      if (path.type === 'rect') return `<rect x="${path.x}" y="${path.y}" width="${path.w}" height="${path.h}" rx="${path.rx||0}" fill="${col}" opacity="${op}"/>`;
+      return `<path d="${path.d}" stroke="${col}" stroke-width="${path.sw||1.5}" stroke-linecap="round" stroke-linejoin="round" opacity="${op}" fill="none"/>`;
+    }).join('\n  ');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">\n  ${svgParts}\n</svg>`;
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `eo-icon-${icon.id}.svg`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      {/* Nav */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(13,13,11,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border)', padding: '0 40px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <a href="EurekaOrange Design System.html" style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t3)', textDecoration: 'none' }}>← Design System</a>
+          <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
+          <span style={{ fontWeight: 600, fontSize: '14px' }}>Icon System</span>
+          <span style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: 'var(--jade)', background: 'rgba(30,207,163,0.1)', padding: '2px 8px', borderRadius: '12px', border: '1px solid rgba(30,207,163,0.2)' }}>
+            {ICONS.length} Duotone icons
+          </span>
+        </div>
+        {/* Controls */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>Primary</span>
+            <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: 'none', cursor: 'pointer', background: 'none' }} />
+            <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>Secondary</span>
+            <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} />
+          </div>
+          <div style={{ display: 'flex', background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '8px', padding: '3px', gap: '2px' }}>
+            {[['dark','🌙'],['light','☀️'],['black','◼']].map(([m, icon]) => (
+              <button key={m} onClick={() => setBgMode(m)} style={{ padding: '4px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer', background: bgMode === m ? 'var(--jade)' : 'transparent', color: bgMode === m ? '#0d0d0b' : 'var(--t3)', fontSize: '12px' }}>{icon}</button>
+            ))}
+          </div>
+          <input type="range" min="16" max="64" step="8" value={size} onChange={e => setSize(+e.target.value)} style={{ width: '80px', accentColor: 'var(--jade)' }} />
+          <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', minWidth: '32px' }}>{size}px</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '40px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '40px', display: 'flex', gap: '24px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '8px' }}>Duotone · 2-color</div>
+            <h1 style={{ fontWeight: 700, fontSize: '40px', letterSpacing: '-0.03em', lineHeight: 1 }}>Icon System</h1>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+            <input placeholder="Search icons…" value={search} onChange={e => setSearch(e.target.value)}
+              style={{ padding: '8px 16px', background: 'var(--raised)', border: '1px solid var(--border)', borderRadius: '8px', color: '#fff', fontFamily: 'var(--fm)', fontSize: '13px', outline: 'none', width: '200px' }}
+            />
+          </div>
+        </div>
+
+        {/* Category filter */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', flexWrap: 'wrap' }}>
+          {CATEGORIES.map(cat => (
+            <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+              padding: '7px 18px', borderRadius: '999px', border: `1px solid ${activeCategory === cat ? 'rgba(30,207,163,0.4)' : 'var(--border)'}`,
+              background: activeCategory === cat ? 'rgba(30,207,163,0.1)' : 'transparent',
+              color: activeCategory === cat ? 'var(--jade)' : 'var(--t2)',
+              fontFamily: 'var(--fd)', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.18s',
+            }}>
+              {cat} <span style={{ fontFamily: 'var(--fm)', fontSize: '10px', opacity: 0.7 }}>({catCount(cat)})</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
+          {filtered.map(icon => (
+            <div key={icon.id}
+              onClick={() => setSelected(icon)}
+              style={{
+                background: cardBg, border: `1px solid ${selected?.id === icon.id ? 'rgba(30,207,163,0.5)' : cardBorder}`,
+                borderRadius: '14px', padding: '20px 16px 14px', cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                transition: 'all 0.18s',
+                boxShadow: selected?.id === icon.id ? '0 0 20px rgba(30,207,163,0.2)' : 'none',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(30,207,163,0.35)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = selected?.id === icon.id ? 'rgba(30,207,163,0.5)' : cardBorder; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <DuoIcon paths={icon.paths} size={size} primary={primaryColor} secondary={secondaryColor} />
+              <div style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: bgMode === 'light' ? '#6e6d63' : 'var(--t3)', textAlign: 'center', lineHeight: 1.4 }}>{icon.name}</div>
+            </div>
+          ))}
+        </div>
+
+        {filtered.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '80px', color: 'var(--t4)', fontFamily: 'var(--fm)', fontSize: '13px' }}>
+            No icons found for "{search}"
+          </div>
+        )}
+      </div>
+
+      {/* Detail panel */}
+      {selected && (
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', width: '280px', background: '#1a1a17', border: '1px solid rgba(30,207,163,0.3)', borderRadius: '20px', padding: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(30,207,163,0.1)', zIndex: 100 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{selected.name}</div>
+              <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t3)' }}>eo-icon-{selected.id}</div>
+            </div>
+            <button onClick={() => setSelected(null)} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: 'var(--t3)', cursor: 'pointer', width: '28px', height: '28px', borderRadius: '7px', fontSize: '14px' }}>×</button>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
+            {[16,24,32,48].map(s => (
+              <div key={s} style={{ textAlign: 'center' }}>
+                <DuoIcon paths={selected.paths} size={s} primary={primaryColor} secondary={secondaryColor} />
+                <div style={{ fontFamily: 'var(--fm)', fontSize: '9px', color: 'var(--t4)', marginTop: '6px' }}>{s}px</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+              <span style={{ color: 'var(--t3)' }}>Category</span>
+              <span style={{ color: 'var(--jade)', fontFamily: 'var(--fm)' }}>{selected.category}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+              <span style={{ color: 'var(--t3)' }}>Paths</span>
+              <span style={{ fontFamily: 'var(--fm)', color: 'var(--t2)' }}>{selected.paths.length}</span>
+            </div>
+          </div>
+          <button onClick={() => exportSVG(selected)} style={{ width: '100%', marginTop: '16px', padding: '10px', background: 'var(--jade)', color: '#0d0d0b', border: 'none', borderRadius: '10px', fontFamily: 'var(--fd)', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>
+            ↓ Export SVG
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

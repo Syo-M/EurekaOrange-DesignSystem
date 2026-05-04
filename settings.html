@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --jade:#1ecfa3;--jade-l:#52e2bc;--jade-d:#0fb389;
+  --bg:#0d0d0b;--s1:#131311;--s2:#1a1a17;--s3:#222220;
+  --b:rgba(255,255,255,0.07);
+  --t1:#fff;--t2:#9b9a91;--t3:#6e6d63;--t4:#484740;
+  --fd:'Space Grotesk',sans-serif;--fm:'DM Mono',monospace;
+  --r:8px;
+}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);min-height:100vh;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:#2e2d28;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--jade)}
+::selection{background:rgba(30,207,163,0.25)}
+input,textarea,select{font-family:var(--fd)}
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef } = React;
+
+/* ── Logo mark ────────────────────────────────── */
+function LogoMark({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="38" stroke="#1ecfa3" strokeWidth="2"/>
+      <path d="M26 28L40 20L54 28L54 52L40 60L26 52Z" fill="#1ecfa3" opacity="0.12"/>
+      <path d="M40 20L54 28L54 52" stroke="#1ecfa3" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M26 28L40 20" stroke="#52e2bc" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+    </svg>
+  );
+}
+
+/* ── Form primitives ──────────────────────────── */
+function Label({ children, htmlFor }) {
+  return <label htmlFor={htmlFor} style={{ fontSize: '13px', fontWeight: 500, color: 'var(--t2)', display: 'block', marginBottom: '6px' }}>{children}</label>;
+}
+
+function Input({ id, value, onChange, placeholder, type = 'text', prefix, suffix }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      {prefix && <span style={{ position: 'absolute', left: '14px', color: 'var(--t3)', fontSize: '14px', pointerEvents: 'none' }}>{prefix}</span>}
+      <input id={id} type={type} value={value} onChange={onChange} placeholder={placeholder}
+        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        style={{
+          width: '100%', padding: `10px ${suffix ? '40px' : '14px'} 10px ${prefix ? '36px' : '14px'}`,
+          background: 'rgba(255,255,255,0.04)',
+          border: `1px solid ${focused ? 'rgba(30,207,163,0.5)' : 'var(--b)'}`,
+          borderRadius: 'var(--r)', color: 'var(--t1)',
+          fontSize: '14px', outline: 'none',
+          boxShadow: focused ? '0 0 0 3px rgba(30,207,163,0.12)' : 'none',
+          transition: 'all 0.2s',
+        }}
+      />
+      {suffix && <span style={{ position: 'absolute', right: '14px', color: 'var(--t3)', fontSize: '13px', pointerEvents: 'none' }}>{suffix}</span>}
+    </div>
+  );
+}
+
+function Toggle({ value, onChange, label, description }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <div>
+        <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: description ? '3px' : 0 }}>{label}</div>
+        {description && <div style={{ fontSize: '12px', color: 'var(--t3)', lineHeight: 1.5 }}>{description}</div>}
+      </div>
+      <div onClick={() => onChange(!value)} style={{
+        width: '44px', height: '24px', borderRadius: '12px', flexShrink: 0, cursor: 'pointer',
+        background: value ? 'var(--jade)' : 'rgba(255,255,255,0.1)',
+        border: `1px solid ${value ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
+        position: 'relative', transition: 'all 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+        boxShadow: value ? '0 0 12px rgba(30,207,163,0.4)' : 'none',
+      }}>
+        <div style={{
+          position: 'absolute', top: '3px', left: value ? '22px' : '3px',
+          width: '16px', height: '16px', borderRadius: '50%', background: '#fff',
+          transition: 'left 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+        }} />
+      </div>
+    </div>
+  );
+}
+
+function SaveBar({ show, onSave, onDiscard }) {
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+      background: 'var(--s2)', border: '1px solid rgba(30,207,163,0.3)',
+      borderRadius: '14px', padding: '12px 20px',
+      display: 'flex', alignItems: 'center', gap: '16px',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      animation: 'slideUp 0.25s cubic-bezier(0.16,1,0.3,1)',
+      zIndex: 100, whiteSpace: 'nowrap',
+    }}>
+      <span style={{ fontSize: '13px', color: 'var(--t2)' }}>未保存の変更があります</span>
+      <button onClick={onDiscard} style={{ background: 'none', border: '1px solid var(--b)', color: 'var(--t2)', fontSize: '13px', fontFamily: 'var(--fd)', padding: '7px 16px', borderRadius: '7px', cursor: 'pointer' }}>取消</button>
+      <button onClick={onSave} style={{ background: 'var(--jade)', color: '#0d0d0b', fontSize: '13px', fontWeight: 700, fontFamily: 'var(--fd)', padding: '7px 20px', borderRadius: '7px', cursor: 'pointer', border: 'none' }}>変更を保存</button>
+    </div>
+  );
+}
+
+/* ── Sidebar items ────────────────────────────── */
+const SETTINGS_NAV = [
+  { id: 'profile',       label: 'プロフィール',        icon: '◉' },
+  { id: 'account',       label: 'アカウント',          icon: '◈' },
+  { id: 'appearance',    label: '外観',               icon: '◑' },
+  { id: 'notifications', label: '通知',               icon: '◎' },
+  { id: 'security',      label: 'セキュリティ',        icon: '◆' },
+  { id: 'billing',       label: '請求・プラン',        icon: '◇' },
+  { id: 'integrations',  label: 'インテグレーション',  icon: '◈' },
+  { id: 'api',           label: 'API Keys',           icon: '⌥' },
+  { id: 'danger',        label: 'Danger Zone',        icon: '⚠', danger: true },
+];
+
+/* ── Profile tab ──────────────────────────────── */
+function ProfileTab({ dirty, setDirty }) {
+  const [name, setName] = useState('Kira Tanaka');
+  const [username, setUsername] = useState('kira_tanaka');
+  const [email, setEmail] = useState('kira@eurekaorange.io');
+  const [bio, setBio] = useState('デザインシステムエンジニア。EurekaOrangeの設計者。');
+  const [website, setWebsite] = useState('eurekaorange.io');
+  const [avatarColor] = useState('#1ecfa3');
+
+  const field = (setter) => (e) => { setter(e.target.value); setDirty(true); };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>プロフィール</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>あなたのプロフィール情報を管理します。</p>
+      </div>
+
+      {/* Avatar */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>AVATAR</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          {/* Avatar */}
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: `linear-gradient(135deg, ${avatarColor}, #0fb389)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 700, color: '#0d0d0b', flexShrink: 0, border: '2px solid rgba(30,207,163,0.3)', boxShadow: '0 0 24px rgba(30,207,163,0.25)' }}>
+            {name.charAt(0)}
+          </div>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{name}</div>
+            <div style={{ fontSize: '12px', color: 'var(--t3)', fontFamily: 'var(--fm)', marginBottom: '12px' }}>@{username}</div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button style={{ background: 'rgba(30,207,163,0.08)', border: '1px solid rgba(30,207,163,0.25)', color: 'var(--jade)', fontSize: '13px', fontFamily: 'var(--fd)', fontWeight: 500, padding: '7px 16px', borderRadius: '7px', cursor: 'pointer' }}>画像をアップロード</button>
+              <button style={{ background: 'none', border: '1px solid var(--b)', color: 'var(--t3)', fontSize: '13px', fontFamily: 'var(--fd)', padding: '7px 16px', borderRadius: '7px', cursor: 'pointer' }}>削除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Basic info */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>基本情報</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          <div>
+            <Label htmlFor="name">表示名</Label>
+            <Input id="name" value={name} onChange={field(setName)} placeholder="Your name" />
+          </div>
+          <div>
+            <Label htmlFor="username">ユーザー名</Label>
+            <Input id="username" value={username} onChange={field(setUsername)} placeholder="username" prefix="@" />
+          </div>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <Label htmlFor="email">メールアドレス</Label>
+          <Input id="email" type="email" value={email} onChange={field(setEmail)} placeholder="you@example.com" />
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <Label htmlFor="bio">自己紹介</Label>
+          <textarea id="bio" value={bio} onChange={field((v) => { setBio(v); setDirty(true); })} rows={3} placeholder="Tell us about yourself…"
+            style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--b)', borderRadius: 'var(--r)', color: 'var(--t1)', fontSize: '14px', outline: 'none', resize: 'vertical', lineHeight: 1.6, fontFamily: 'var(--fd)' }}
+            onFocus={e => { e.target.style.borderColor = 'rgba(30,207,163,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(30,207,163,0.12)'; }}
+            onBlur={e => { e.target.style.borderColor = 'var(--b)'; e.target.style.boxShadow = 'none'; }}
+          />
+          <div style={{ textAlign: 'right', fontFamily: 'var(--fm)', fontSize: '11px', color: bio.length > 140 ? '#ef4444' : 'var(--t4)', marginTop: '4px' }}>{bio.length}/160</div>
+        </div>
+        <div>
+          <Label htmlFor="website">ウェブサイト</Label>
+          <Input id="website" value={website} onChange={field(setWebsite)} placeholder="yoursite.com" prefix="https://" />
+        </div>
+      </div>
+
+      {/* Social links */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>ソーシャルリンク</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[
+            { label: 'GitHub',   placeholder: 'github.com/username',   prefix: '⌥' },
+            { label: 'Twitter',  placeholder: 'twitter.com/username',   prefix: '𝕏' },
+            { label: 'LinkedIn', placeholder: 'linkedin.com/in/handle', prefix: 'in' },
+          ].map(s => (
+            <div key={s.label}>
+              <Label>{s.label}</Label>
+              <Input placeholder={s.placeholder} prefix={s.prefix} value="" onChange={() => setDirty(true)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Appearance tab ───────────────────────────── */
+function AppearanceTab({ dirty, setDirty }) {
+  const [theme, setTheme] = useState('dark');
+  const [lang, setLang] = useState('ja');
+  const [emailDigest, setEmailDigest] = useState(true);
+  const [slackAlert, setSlackAlert] = useState(false);
+  const [inApp, setInApp] = useState(true);
+  const [compact, setCompact] = useState(false);
+  const [animations, setAnimations] = useState(true);
+  const [accentIdx, setAccentIdx] = useState(0);
+
+  const accents = [
+    { label: 'Jade',     color: '#1ecfa3' },
+    { label: 'Electric', color: '#a855f7' },
+    { label: 'Ice',      color: '#06b6d4' },
+    { label: 'Acid',     color: '#84cc16' },
+    { label: 'Flame',    color: '#f97316' },
+  ];
+
+  const tog = (setter) => (v) => { setter(v); setDirty(true); };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>外観</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>テーマ・カラー・表示設定をカスタマイズします。</p>
+      </div>
+
+      {/* Theme */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>テーマ</div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {[
+            { id: 'dark',   label: '🌙 ダーク',  preview: '#0d0d0b' },
+            { id: 'light',  label: '☀️ ライト',  preview: '#f8f8f6' },
+            { id: 'system', label: '⚙️ システム', preview: 'linear-gradient(135deg, #0d0d0b 50%, #f8f8f6 50%)' },
+          ].map(t => (
+            <button key={t.id} onClick={() => { setTheme(t.id); setDirty(true); }} style={{
+              flex: 1, padding: '16px 12px', borderRadius: '12px', cursor: 'pointer',
+              background: theme === t.id ? 'rgba(30,207,163,0.08)' : 'rgba(255,255,255,0.03)',
+              border: `2px solid ${theme === t.id ? 'rgba(30,207,163,0.5)' : 'var(--b)'}`,
+              transition: 'all 0.18s',
+            }}>
+              <div style={{ width: '100%', height: '40px', borderRadius: '8px', background: t.preview, marginBottom: '10px', border: '1px solid rgba(255,255,255,0.08)' }} />
+              <div style={{ fontSize: '13px', fontWeight: 600, color: theme === t.id ? 'var(--jade)' : 'var(--t1)' }}>{t.label}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Accent */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>アクセントカラー</div>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {accents.map((a, i) => (
+            <button key={a.label} onClick={() => { setAccentIdx(i); setDirty(true); }} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
+              background: 'none', border: 'none', cursor: 'pointer',
+            }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '50%', background: a.color,
+                border: `3px solid ${accentIdx === i ? '#fff' : 'transparent'}`,
+                boxShadow: accentIdx === i ? `0 0 0 1px ${a.color}, 0 0 16px ${a.color}60` : 'none',
+                transition: 'all 0.18s',
+              }} />
+              <span style={{ fontSize: '11px', color: accentIdx === i ? '#fff' : 'var(--t3)', fontFamily: 'var(--fm)' }}>{a.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Language */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>言語・地域</div>
+        <div>
+          <Label>表示言語</Label>
+          <div style={{ position: 'relative' }}>
+            <select value={lang} onChange={e => { setLang(e.target.value); setDirty(true); }}
+              style={{ width: '100%', padding: '10px 36px 10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--b)', borderRadius: 'var(--r)', color: 'var(--t1)', fontSize: '14px', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+              onFocus={e => { e.target.style.borderColor = 'rgba(30,207,163,0.5)'; }}
+              onBlur={e => { e.target.style.borderColor = 'var(--b)'; }}
+            >
+              <option value="ja">🇯🇵 日本語</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="zh">🇨🇳 中文</option>
+              <option value="ko">🇰🇷 한국어</option>
+            </select>
+            <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Preferences */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '4px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>表示設定</div>
+        <Toggle value={compact} onChange={tog(setCompact)} label="コンパクト表示" description="リストやカードの間隔を縮小して情報密度を上げます" />
+        <Toggle value={animations} onChange={tog(setAnimations)} label="アニメーション" description="UIのトランジション・マイクロインタラクションを有効にする" />
+      </div>
+    </div>
+  );
+}
+
+/* ── Security tab ─────────────────────────────── */
+function SecurityTab({ dirty, setDirty }) {
+  const [twoFactor, setTwoFactor] = useState(false);
+  const [sessions] = useState([
+    { device: 'MacBook Pro', location: '東京, JP', current: true, time: 'たった今' },
+    { device: 'iPhone 15 Pro', location: '東京, JP', current: false, time: '2時間前' },
+    { device: 'Chrome on Windows', location: '大阪, JP', current: false, time: '3日前' },
+  ]);
+
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>セキュリティ</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>アカウントのセキュリティ設定を管理します。</p>
+      </div>
+
+      {/* Password */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>パスワード変更</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[
+            { label: '現在のパスワード', id: 'cur' },
+            { label: '新しいパスワード', id: 'new' },
+            { label: '確認（再入力）', id: 'confirm' },
+          ].map(f => (
+            <div key={f.id}>
+              <Label htmlFor={f.id}>{f.label}</Label>
+              <Input id={f.id} type="password" placeholder="••••••••" value="" onChange={() => setDirty(true)} />
+            </div>
+          ))}
+          <button style={{ alignSelf: 'flex-start', background: 'var(--jade)', color: '#0d0d0b', border: 'none', fontFamily: 'var(--fd)', fontWeight: 700, fontSize: '13px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer' }}>
+            パスワードを変更
+          </button>
+        </div>
+      </div>
+
+      {/* 2FA */}
+      <div style={{ background: 'var(--s2)', border: `1px solid ${twoFactor ? 'rgba(30,207,163,0.25)' : 'var(--b)'}`, borderRadius: '16px', padding: '28px', marginBottom: '20px', background: twoFactor ? 'rgba(30,207,163,0.03)' : 'var(--s2)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              2要素認証
+              {twoFactor && <span style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: 'var(--jade)', background: 'rgba(30,207,163,0.1)', padding: '2px 8px', borderRadius: '12px', border: '1px solid rgba(30,207,163,0.2)' }}>有効</span>}
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--t3)', lineHeight: 1.6 }}>認証アプリを使って追加のセキュリティレイヤーを設定します</div>
+          </div>
+          <button onClick={() => { setTwoFactor(!twoFactor); setDirty(true); }} style={{
+            padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+            background: twoFactor ? 'rgba(239,68,68,0.1)' : 'var(--jade)',
+            color: twoFactor ? '#ef4444' : '#0d0d0b',
+            fontFamily: 'var(--fd)', fontWeight: 600, fontSize: '13px',
+          }}>{twoFactor ? '無効にする' : '有効にする'}</button>
+        </div>
+      </div>
+
+      {/* Sessions */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>アクティブセッション</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {sessions.map((s, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: '10px', background: s.current ? 'rgba(30,207,163,0.06)' : 'rgba(255,255,255,0.02)', border: `1px solid ${s.current ? 'rgba(30,207,163,0.2)' : 'rgba(255,255,255,0.04)'}` }}>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: s.current ? 'rgba(30,207,163,0.12)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>
+                  {s.device.includes('iPhone') ? '📱' : s.device.includes('Chrome') ? '🌐' : '💻'}
+                </div>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '2px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {s.device}
+                    {s.current && <span style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: 'var(--jade)' }}>現在</span>}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--t3)', fontFamily: 'var(--fm)' }}>{s.location} · {s.time}</div>
+                </div>
+              </div>
+              {!s.current && (
+                <button style={{ background: 'none', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontSize: '12px', fontFamily: 'var(--fd)', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer' }}>終了</button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Billing tab ──────────────────────────────── */
+function BillingTab() {
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>請求・プラン</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>プランと支払い情報を管理します。</p>
+      </div>
+
+      {/* Current plan */}
+      <div style={{ background: 'rgba(30,207,163,0.05)', border: '1px solid rgba(30,207,163,0.3)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--jade)', fontFamily: 'var(--fm)', letterSpacing: '0.05em', marginBottom: '8px' }}>現在のプラン</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontWeight: 700, fontSize: '32px', letterSpacing: '-0.03em' }}>Pro</span>
+              <span style={{ color: 'var(--t3)', fontSize: '14px' }}>¥1,480 / 月</span>
+            </div>
+          </div>
+          <span style={{ background: 'rgba(30,207,163,0.1)', border: '1px solid rgba(30,207,163,0.3)', color: 'var(--jade)', fontFamily: 'var(--fm)', fontSize: '11px', padding: '4px 12px', borderRadius: '999px' }}>有効</span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          {['無制限プロジェクト', 'Figmaエクスポート', '全56アイコン', 'ライト/ダーク両対応', 'APIアクセス'].map(f => (
+            <span key={f} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(30,207,163,0.08)', border: '1px solid rgba(30,207,163,0.15)', color: 'var(--jade-l)', fontSize: '12px', padding: '4px 12px', borderRadius: '999px', fontFamily: 'var(--fm)' }}>
+              ✓ {f}
+            </span>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button style={{ background: 'var(--jade)', color: '#0d0d0b', border: 'none', fontFamily: 'var(--fd)', fontWeight: 700, fontSize: '13px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer' }}>Teamにアップグレード</button>
+          <button style={{ background: 'none', border: '1px solid var(--b)', color: 'var(--t3)', fontFamily: 'var(--fd)', fontSize: '13px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer' }}>プランを変更</button>
+        </div>
+      </div>
+
+      {/* Payment method */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>お支払い方法</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--b)', borderRadius: '10px', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+            <div style={{ width: '44px', height: '28px', background: 'linear-gradient(135deg, #1a1a6e, #2d2daa)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 900, color: '#fff', letterSpacing: '0.05em' }}>VISA</div>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 500 }}>•••• •••• •••• 4242</div>
+              <div style={{ fontSize: '11px', color: 'var(--t4)', fontFamily: 'var(--fm)' }}>有効期限 12/27</div>
+            </div>
+          </div>
+          <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', background: 'rgba(30,207,163,0.1)', padding: '2px 8px', borderRadius: '6px' }}>デフォルト</span>
+        </div>
+        <button style={{ background: 'none', border: '1px solid var(--b)', color: 'var(--t2)', fontSize: '13px', fontFamily: 'var(--fd)', padding: '8px 16px', borderRadius: '7px', cursor: 'pointer' }}>+ 支払い方法を追加</button>
+      </div>
+
+      {/* Invoice history */}
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '20px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>請求履歴</div>
+        {[
+          { date: '2025-05-01', amount: '¥1,480', status: '支払済' },
+          { date: '2025-04-01', amount: '¥1,480', status: '支払済' },
+          { date: '2025-03-01', amount: '¥1,480', status: '支払済' },
+        ].map((inv, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'var(--fm)', fontSize: '13px', color: 'var(--t2)' }}>{inv.date}</span>
+              <span style={{ fontSize: '13px', fontWeight: 500 }}>{inv.amount}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--jade)', background: 'rgba(30,207,163,0.1)', padding: '2px 8px', borderRadius: '6px' }}>{inv.status}</span>
+              <button style={{ background: 'none', border: 'none', color: 'var(--t3)', fontSize: '12px', fontFamily: 'var(--fm)', cursor: 'pointer' }}>PDF ↓</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Notifications tab ────────────────────────── */
+function NotificationsTab({ dirty, setDirty }) {
+  const [states, setStates] = useState({
+    emailDigest: true, emailUpdates: false, emailSecurity: true,
+    slackAlerts: false, inAppAll: true, inAppMentions: true,
+    browserPush: false, mobileAll: true,
+  });
+  const tog = (key) => { setStates(s => ({ ...s, [key]: !s[key] })); setDirty(true); };
+
+  const groups = [
+    { label: 'メール通知', items: [
+      { key: 'emailDigest', label: 'ウィークリーダイジェスト', desc: '毎週月曜朝に変更サマリーを送信' },
+      { key: 'emailUpdates', label: 'プロダクトアップデート', desc: '新機能・リリースノートをメール送信' },
+      { key: 'emailSecurity', label: 'セキュリティアラート', desc: '不審なログインや変更を即時通知' },
+    ]},
+    { label: 'アプリ内通知', items: [
+      { key: 'inAppAll', label: 'すべての通知', desc: 'すべてのイベントをアプリ内で表示' },
+      { key: 'inAppMentions', label: 'メンション', desc: '自分が@メンションされたとき' },
+      { key: 'browserPush', label: 'ブラウザプッシュ', desc: 'ブラウザ通知を許可する' },
+    ]},
+  ];
+
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>通知</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>通知の受信方法と頻度をコントロールします。</p>
+      </div>
+      {groups.map(g => (
+        <div key={g.label} style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', padding: '28px', marginBottom: '20px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', marginBottom: '4px', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>{g.label}</div>
+          {g.items.map(item => (
+            <Toggle key={item.key} value={states[item.key]} onChange={() => tog(item.key)} label={item.label} description={item.desc} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── API tab ──────────────────────────────────── */
+function ApiTab() {
+  const [keys] = useState([
+    { name: 'Production Key', key: 'eo_live_***************a4f2', created: '2025-04-01', lastUsed: '5分前', active: true },
+    { name: 'Staging Key',    key: 'eo_test_***************b7c1', created: '2025-03-15', lastUsed: '2日前',  active: true },
+    { name: 'Legacy Key',     key: 'eo_live_***************x9z3', created: '2024-12-01', lastUsed: '90日前', active: false },
+  ]);
+
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px' }}>API Keys</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>APIキーを使ってEurekaOrangeをプログラムから操作できます。</p>
+      </div>
+      <div style={{ background: 'var(--s2)', border: '1px solid var(--b)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--b)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--t2)', fontFamily: 'var(--fm)', letterSpacing: '0.05em' }}>API KEYS ({keys.length})</div>
+          <button style={{ background: 'var(--jade)', color: '#0d0d0b', border: 'none', fontFamily: 'var(--fd)', fontWeight: 700, fontSize: '12px', padding: '7px 16px', borderRadius: '7px', cursor: 'pointer' }}>+ 新規作成</button>
+        </div>
+        {keys.map((k, i) => (
+          <div key={k.name} style={{ padding: '18px 20px', borderBottom: i < keys.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600 }}>{k.name}</span>
+                <span style={{ fontFamily: 'var(--fm)', fontSize: '10px', padding: '2px 8px', borderRadius: '999px', background: k.active ? 'rgba(30,207,163,0.1)' : 'rgba(255,255,255,0.05)', color: k.active ? 'var(--jade)' : 'var(--t4)', border: `1px solid ${k.active ? 'rgba(30,207,163,0.2)' : 'rgba(255,255,255,0.07)'}` }}>
+                  {k.active ? '有効' : '無効'}
+                </span>
+              </div>
+              <div style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--t4)' }}>{k.key}</div>
+              <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--t4)', marginTop: '4px' }}>作成: {k.created} · 最終使用: {k.lastUsed}</div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+              <button style={{ background: 'none', border: '1px solid var(--b)', color: 'var(--t3)', fontSize: '12px', fontFamily: 'var(--fm)', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer' }}>コピー</button>
+              <button style={{ background: 'none', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontSize: '12px', fontFamily: 'var(--fm)', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer' }}>削除</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Danger tab ───────────────────────────────── */
+function DangerTab() {
+  return (
+    <div>
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '6px', color: '#ef4444' }}>Danger Zone</h2>
+        <p style={{ fontSize: '14px', color: 'var(--t3)' }}>取り消し不可能な操作です。慎重に実行してください。</p>
+      </div>
+      {[
+        { title: 'データを全削除', desc: 'すべてのプロジェクト・トークン・設定を削除します。この操作は元に戻せません。', btn: 'データを削除', color: '#f97316' },
+        { title: 'アカウントを削除', desc: 'アカウントとすべての関連データを完全に削除します。', btn: 'アカウントを削除', color: '#ef4444' },
+      ].map(d => (
+        <div key={d.title} style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '16px', padding: '24px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px', color: d.color }}>{d.title}</div>
+            <div style={{ fontSize: '13px', color: 'var(--t3)', lineHeight: 1.6 }}>{d.desc}</div>
+          </div>
+          <button style={{ background: 'none', border: `1px solid ${d.color}50`, color: d.color, fontFamily: 'var(--fd)', fontWeight: 600, fontSize: '13px', padding: '9px 20px', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {d.btn}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── Main App ─────────────────────────────────── */
+function App() {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [dirty, setDirty] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => { setDirty(false); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  const handleDiscard = () => setDirty(false);
+
+  const TAB_MAP = {
+    profile: <ProfileTab dirty={dirty} setDirty={setDirty} />,
+    appearance: <AppearanceTab dirty={dirty} setDirty={setDirty} />,
+    security: <SecurityTab dirty={dirty} setDirty={setDirty} />,
+    billing: <BillingTab />,
+    notifications: <NotificationsTab dirty={dirty} setDirty={setDirty} />,
+    api: <ApiTab />,
+    danger: <DangerTab />,
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Top nav */}
+      <div style={{ borderBottom: '1px solid var(--b)', padding: '0 32px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,13,11,0.9)', backdropFilter: 'blur(16px)', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <a href="EurekaOrange Design System.html" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+            <LogoMark size={24} />
+            <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--t1)' }}>EurekaOrange</span>
+          </a>
+          <span style={{ color: 'var(--t4)' }}>/</span>
+          <span style={{ fontSize: '14px', color: 'var(--t2)' }}>設定</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {saved && <span style={{ fontFamily: 'var(--fm)', fontSize: '12px', color: 'var(--jade)' }}>✓ 保存しました</span>}
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #1ecfa3, #0fb389)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px', color: '#0d0d0b' }}>K</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flex: 1, maxWidth: '1100px', margin: '0 auto', width: '100%', padding: '40px 32px', gap: '40px' }}>
+        {/* Sidebar */}
+        <div style={{ width: '220px', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'var(--fm)', fontSize: '10px', color: 'var(--t4)', letterSpacing: '0.1em', marginBottom: '12px', paddingLeft: '12px' }}>SETTINGS</div>
+          {SETTINGS_NAV.map(item => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)} style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '9px 12px', borderRadius: '9px', border: 'none', cursor: 'pointer',
+              background: activeTab === item.id ? (item.danger ? 'rgba(239,68,68,0.08)' : 'rgba(30,207,163,0.08)') : 'transparent',
+              color: activeTab === item.id ? (item.danger ? '#ef4444' : 'var(--jade)') : (item.danger ? '#f87171' : 'var(--t2)'),
+              fontFamily: 'var(--fd)', fontSize: '13px', fontWeight: activeTab === item.id ? 600 : 400,
+              textAlign: 'left', marginBottom: '2px', transition: 'all 0.15s',
+            }}
+              onMouseEnter={e => { if(activeTab !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+              onMouseLeave={e => { if(activeTab !== item.id) e.currentTarget.style.background = 'transparent'; }}
+            >
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {TAB_MAP[activeTab] || <div style={{ color: 'var(--t3)', padding: '40px', textAlign: 'center', fontFamily: 'var(--fm)', fontSize: '13px' }}>Coming soon…</div>}
+        </div>
+      </div>
+
+      <SaveBar show={dirty} onSave={handleSave} onDiscard={handleDiscard} />
+
+      <style>{`@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

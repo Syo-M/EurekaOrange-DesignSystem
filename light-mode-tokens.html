@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Light Mode Tokens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+::-webkit-scrollbar { width: 5px; }
+::selection { background: rgba(30,207,163,0.25); }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ── Token definitions ─────────────────────────────── */
+const DARK_TOKENS = {
+  'surface/background':  '#0d0d0b',
+  'surface/base':        '#131311',
+  'surface/raised':      '#1a1a17',
+  'surface/overlay':     '#222220',
+  'surface/border':      'rgba(255,255,255,0.07)',
+  'text/primary':        '#ffffff',
+  'text/secondary':      '#9b9a91',
+  'text/tertiary':       '#6e6d63',
+  'text/disabled':       '#484740',
+  'text/on-accent':      '#0d0d0b',
+  'accent/default':      '#1ecfa3',
+  'accent/hover':        '#52e2bc',
+  'accent/active':       '#0fb389',
+  'accent/subtle':       'rgba(30,207,163,0.12)',
+  'accent/border':       'rgba(30,207,163,0.30)',
+  'accent/glow':         'rgba(30,207,163,0.35)',
+  'status/success':      '#22c55e',
+  'status/warning':      '#f59e0b',
+  'status/error':        '#ef4444',
+  'status/info':         '#3b82f6',
+  'shadow/xs':           '0 1px 2px rgba(0,0,0,0.3)',
+  'shadow/sm':           '0 1px 3px rgba(0,0,0,0.4)',
+  'shadow/md':           '0 4px 12px rgba(0,0,0,0.5)',
+  'shadow/lg':           '0 10px 30px rgba(0,0,0,0.6)',
+  'shadow/xl':           '0 20px 60px rgba(0,0,0,0.7)',
+  'shadow/glow':         '0 0 40px rgba(30,207,163,0.35)',
+};
+
+const LIGHT_TOKENS = {
+  'surface/background':  '#f8f8f6',
+  'surface/base':        '#ffffff',
+  'surface/raised':      '#f2f2ef',
+  'surface/overlay':     '#eaeae6',
+  'surface/border':      'rgba(0,0,0,0.08)',
+  'text/primary':        '#111110',
+  'text/secondary':      '#484740',
+  'text/tertiary':       '#6e6d63',
+  'text/disabled':       '#9b9a91',
+  'text/on-accent':      '#ffffff',
+  'accent/default':      '#0fb389',
+  'accent/hover':        '#1ecfa3',
+  'accent/active':       '#098f6d',
+  'accent/subtle':       'rgba(15,179,137,0.10)',
+  'accent/border':       'rgba(15,179,137,0.30)',
+  'accent/glow':         'rgba(15,179,137,0.20)',
+  'status/success':      '#16a34a',
+  'status/warning':      '#d97706',
+  'status/error':        '#dc2626',
+  'status/info':         '#2563eb',
+  'shadow/xs':           '0 1px 2px rgba(0,0,0,0.06)',
+  'shadow/sm':           '0 1px 3px rgba(0,0,0,0.08)',
+  'shadow/md':           '0 4px 12px rgba(0,0,0,0.10)',
+  'shadow/lg':           '0 10px 30px rgba(0,0,0,0.12)',
+  'shadow/xl':           '0 20px 60px rgba(0,0,0,0.14)',
+  'shadow/glow':         '0 0 24px rgba(15,179,137,0.20)',
+};
+
+const CATEGORIES = ['surface', 'text', 'accent', 'status', 'shadow'];
+const CAT_LABELS = { surface: 'Surface', text: 'Text', accent: 'Accent', status: 'Status', shadow: 'Shadow' };
+
+function isColor(val) { return val.startsWith('#') || val.startsWith('rgba') || val.startsWith('rgb'); }
+function isShadow(val) { return val.includes('px') && !val.startsWith('#') && !val.startsWith('rgba('); }
+
+function TokenSwatch({ token, darkVal, lightVal, mode }) {
+  const [copied, setCopied] = useState(false);
+  const val = mode === 'dark' ? darkVal : lightVal;
+  const copy = () => { navigator.clipboard?.writeText(`--eo-${token.replace('/','-')}: ${val};`).catch(()=>{}); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+
+  const preview = () => {
+    if (isShadow(val)) return (
+      <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: mode === 'dark' ? '#2e2d28' : '#fff', boxShadow: val, flexShrink: 0, border: mode === 'light' ? '1px solid rgba(0,0,0,0.06)' : 'none' }} />
+    );
+    if (isColor(val)) return (
+      <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: val, flexShrink: 0, border: (val === '#ffffff' || val === '#f8f8f6') ? '1px solid rgba(0,0,0,0.1)' : 'none' }} />
+    );
+    return <div style={{ width: '36px', height: '36px' }} />;
+  };
+
+  const bg = mode === 'dark' ? '#1a1a17' : '#fff';
+  const textPrimary = mode === 'dark' ? '#fff' : '#111';
+  const textSecondary = mode === 'dark' ? '#6e6d63' : '#9b9a91';
+  const borderColor = mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)';
+
+  return (
+    <div onClick={copy} style={{
+      display: 'flex', alignItems: 'center', gap: '14px',
+      padding: '12px 16px', borderRadius: '10px',
+      background: bg, border: `1px solid ${borderColor}`,
+      cursor: 'pointer', transition: 'all 0.15s',
+    }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = mode === 'dark' ? 'rgba(30,207,163,0.3)' : 'rgba(15,179,137,0.3)'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}
+    >
+      {preview()}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', color: mode === 'dark' ? '#1ecfa3' : '#0fb389', marginBottom: '3px' }}>
+          --eo-{token.replace('/', '-')}
+        </div>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {val}
+        </div>
+      </div>
+      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: copied ? (mode === 'dark' ? '#1ecfa3' : '#0fb389') : textSecondary, flexShrink: 0 }}>
+        {copied ? '✓' : 'copy'}
+      </div>
+    </div>
+  );
+}
+
+function DiffBadge({ darkVal, lightVal }) {
+  const changed = darkVal !== lightVal;
+  if (!changed) return <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#9b9a91', padding: '2px 7px', borderRadius: '4px', background: 'rgba(0,0,0,0.06)' }}>same</span>;
+  return <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#f59e0b', padding: '2px 7px', borderRadius: '4px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>diff</span>;
+}
+
+function App() {
+  const [mode, setMode] = useState('both'); // 'dark' | 'light' | 'both'
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [copied, setCopied] = useState(false);
+
+  const isDark = mode !== 'light';
+  const bg = mode === 'light' ? '#f8f8f6' : '#0d0d0b';
+  const textPrimary = mode === 'light' ? '#111110' : '#ffffff';
+  const textSecondary = mode === 'light' ? '#484740' : '#9b9a91';
+  const surfaceRaised = mode === 'light' ? '#ffffff' : '#1a1a17';
+  const border = mode === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
+  const jade = mode === 'light' ? '#0fb389' : '#1ecfa3';
+
+  const exportCSS = () => {
+    const lines = [
+      ':root {',
+      '  /* === EurekaOrange — Dark Mode Tokens === */',
+      ...Object.entries(DARK_TOKENS).map(([k,v]) => `  --eo-${k.replace('/','--')}: ${v};`),
+      '}',
+      '',
+      '[data-theme="light"] {',
+      '  /* === EurekaOrange — Light Mode Tokens === */',
+      ...Object.entries(LIGHT_TOKENS).map(([k,v]) => `  --eo-${k.replace('/','--')}: ${v};`),
+      '}',
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/css' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'eureka-orange-semantic-tokens.css'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filteredTokens = Object.keys(DARK_TOKENS).filter(k =>
+    activeCategory === 'all' || k.startsWith(activeCategory)
+  );
+
+  return (
+    <div style={{ background: bg, color: textPrimary, minHeight: '100vh', transition: 'all 0.3s', fontFamily: "'Space Grotesk', sans-serif" }}>
+      {/* Nav */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: mode === 'light' ? 'rgba(248,248,246,0.92)' : 'rgba(13,13,11,0.92)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${border}`, padding: '0 40px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a href="EurekaOrange Design System.html" style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', color: textSecondary, textDecoration: 'none' }}>← Design System</a>
+          <div style={{ width: '1px', height: '16px', background: border }} />
+          <span style={{ fontWeight: 600, fontSize: '14px' }}>Light Mode Tokens</span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: jade, background: mode === 'light' ? 'rgba(15,179,137,0.1)' : 'rgba(30,207,163,0.1)', padding: '2px 8px', borderRadius: '12px', border: `1px solid ${mode === 'light' ? 'rgba(15,179,137,0.2)' : 'rgba(30,207,163,0.2)'}` }}>
+            {Object.keys(DARK_TOKENS).length} semantic tokens
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {/* Mode switcher */}
+          <div style={{ display: 'flex', background: mode === 'light' ? '#eaeae6' : '#1a1a17', border: `1px solid ${border}`, borderRadius: '10px', padding: '3px', gap: '2px' }}>
+            {[['dark','🌙 Dark'],['both','⚡ Both'],['light','☀️ Light']].map(([m, label]) => (
+              <button key={m} onClick={() => setMode(m)} style={{
+                padding: '6px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
+                fontFamily: "'Space Grotesk', sans-serif", fontSize: '12px', fontWeight: 500,
+                background: mode === m ? jade : 'transparent',
+                color: mode === m ? '#0d0d0b' : textSecondary,
+                transition: 'all 0.2s',
+              }}>{label}</button>
+            ))}
+          </div>
+          <button onClick={exportCSS} style={{ background: 'none', border: `1px solid ${border}`, color: textSecondary, fontFamily: "'DM Mono', monospace", fontSize: '12px', padding: '7px 16px', borderRadius: '7px', cursor: 'pointer' }}>↓ CSS</button>
+        </div>
+      </div>
+
+      <div style={{ padding: '48px 40px 80px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '48px', maxWidth: '640px' }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: jade, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'inline-block', width: '24px', height: '1px', background: jade }} />
+            Semantic Token System
+          </div>
+          <h1 style={{ fontWeight: 700, fontSize: '40px', letterSpacing: '-0.03em', marginBottom: '12px' }}>
+            Light &amp; Dark<br />
+            <span style={{ background: `linear-gradient(135deg, #52e2bc, #1ecfa3)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Token Reference</span>
+          </h1>
+          <p style={{ color: textSecondary, fontSize: '15px', lineHeight: 1.7 }}>
+            セマンティックトークンはダーク・ライト両テーマに対応。<code style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', background: mode === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)', padding: '2px 6px', borderRadius: '4px' }}>data-theme="light"</code> を付与するだけでテーマ切替が完了します。
+          </p>
+        </div>
+
+        {/* How to use */}
+        <div style={{ marginBottom: '48px', padding: '28px', background: surfaceRaised, border: `1px solid ${border}`, borderRadius: '16px' }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: jade, marginBottom: '16px', letterSpacing: '0.08em' }}>─── Usage</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {[
+              { label: 'HTML', code: `<html data-theme="dark">\n  <!-- dark mode -->\n</html>` },
+              { label: 'JS Toggle', code: `document.documentElement\n  .dataset.theme = 'light'` },
+              { label: 'CSS var', code: `color: var(--eo-text-primary);\nbackground: var(--eo-surface-base);` },
+              { label: 'Prefers', code: `@media (prefers-color-scheme: light) {\n  [data-theme="auto"] { ... }\n}` },
+            ].map(s => (
+              <div key={s.label}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: textSecondary, marginBottom: '8px', letterSpacing: '0.08em' }}>{s.label}</div>
+                <pre style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', color: mode === 'dark' ? '#c8c7c0' : '#484740', background: mode === 'dark' ? '#080807' : '#f2f2ef', padding: '14px', borderRadius: '8px', border: `1px solid ${border}`, lineHeight: 1.7, overflow: 'auto' }}>{s.code}</pre>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Category filter */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', flexWrap: 'wrap' }}>
+          {['all', ...CATEGORIES].map(cat => (
+            <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+              padding: '6px 16px', borderRadius: '999px', border: `1px solid ${activeCategory === cat ? (mode === 'light' ? 'rgba(15,179,137,0.4)' : 'rgba(30,207,163,0.4)') : border}`,
+              background: activeCategory === cat ? (mode === 'light' ? 'rgba(15,179,137,0.1)' : 'rgba(30,207,163,0.1)') : 'transparent',
+              color: activeCategory === cat ? jade : textSecondary,
+              fontFamily: "'Space Grotesk', sans-serif", fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.18s',
+            }}>
+              {cat === 'all' ? 'All' : CAT_LABELS[cat]}
+            </button>
+          ))}
+        </div>
+
+        {/* Token comparison grid */}
+        {mode === 'both' ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            {/* Dark column */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', padding: '12px 16px', background: '#1a1a17', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <span style={{ fontSize: '18px' }}>🌙</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>Dark Mode</div>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#6e6d63' }}>:root / [data-theme="dark"]</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {filteredTokens.map(token => (
+                  <TokenSwatch key={token} token={token} darkVal={DARK_TOKENS[token]} lightVal={LIGHT_TOKENS[token]} mode="dark" />
+                ))}
+              </div>
+            </div>
+            {/* Light column */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', padding: '12px 16px', background: '#ffffff', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <span style={{ fontSize: '18px' }}>☀️</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '15px', color: '#111' }}>Light Mode</div>
+                  <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#9b9a91' }}>[data-theme="light"]</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {filteredTokens.map(token => (
+                  <div key={token} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ flex: 1 }}>
+                      <TokenSwatch token={token} darkVal={DARK_TOKENS[token]} lightVal={LIGHT_TOKENS[token]} mode="light" />
+                    </div>
+                    <DiffBadge darkVal={DARK_TOKENS[token]} lightVal={LIGHT_TOKENS[token]} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {filteredTokens.map(token => (
+              <TokenSwatch key={token} token={token} darkVal={DARK_TOKENS[token]} lightVal={LIGHT_TOKENS[token]} mode={mode} />
+            ))}
+          </div>
+        )}
+
+        {/* Live preview */}
+        <div style={{ marginTop: '64px' }}>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: jade, letterSpacing: '0.1em', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'inline-block', width: '20px', height: '1px', background: jade }} />
+            Live Component Preview
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            {(['dark','light']).map(m => (
+              <div key={m} style={{
+                padding: '32px',
+                background: m === 'dark' ? '#0d0d0b' : '#f8f8f6',
+                border: `1px solid ${m === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`,
+                borderRadius: '20px',
+              }}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: m === 'dark' ? '#6e6d63' : '#9b9a91', marginBottom: '20px', letterSpacing: '0.08em' }}>
+                  {m === 'dark' ? '🌙 Dark' : '☀️ Light'}
+                </div>
+                {/* Mini UI preview */}
+                <div style={{ background: m === 'dark' ? '#1a1a17' : '#ffffff', border: `1px solid ${m === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`, borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: m === 'light' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: m === 'dark' ? '#fff' : '#111', marginBottom: '6px' }}>Card Title</div>
+                  <div style={{ fontSize: '13px', color: m === 'dark' ? '#9b9a91' : '#484740', lineHeight: 1.6, marginBottom: '16px' }}>Semantic tokens in action.</div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button style={{ padding: '8px 16px', background: m === 'dark' ? '#1ecfa3' : '#0fb389', color: '#fff', border: 'none', borderRadius: '7px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}>Primary</button>
+                    <button style={{ padding: '8px 16px', background: 'transparent', color: m === 'dark' ? '#1ecfa3' : '#0fb389', border: `1px solid ${m === 'dark' ? 'rgba(30,207,163,0.35)' : 'rgba(15,179,137,0.35)'}`, borderRadius: '7px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500, fontSize: '13px', cursor: 'pointer' }}>Secondary</button>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[['#22c55e','Success'],['#f59e0b','Warning'],['#ef4444','Error']].map(([c, l]) => (
+                    <span key={l} style={{ flex: 1, textAlign: 'center', padding: '6px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, background: `${c}18`, color: c, border: `1px solid ${c}35`, fontFamily: "'DM Mono', monospace" }}>{l}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

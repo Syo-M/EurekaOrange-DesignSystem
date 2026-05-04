@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Token Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d0b;
+  --surface: #131311;
+  --surface-raised: #1a1a17;
+  --border: rgba(255,255,255,0.07);
+  --text-primary: #ffffff;
+  --text-secondary: #9b9a91;
+  --accent: #1ecfa3;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-display);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: #2e2d28; border-radius: 3px; }
+::selection { background: rgba(30,207,163,0.3); color: #fff; }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+const ALL_TOKENS = [
+  // Colors — Jade (Primary)
+  { category: 'Color / Primary', token: '--eo-jade-50',  value: '#e8fdf6', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-100', value: '#c4f7e8', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-200', value: '#8eefd4', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-300', value: '#52e2bc', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-400', value: '#1ecfa3', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-500', value: '#0fb389', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-600', value: '#098f6d', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-700', value: '#066b51', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-800', value: '#034636', type: 'color' },
+  { category: 'Color / Primary', token: '--eo-jade-900', value: '#01231b', type: 'color' },
+  // Colors — Ink
+  { category: 'Color / Ink', token: '--eo-ink-0',   value: '#ffffff', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-50',  value: '#f5f5f3', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-100', value: '#e8e7e3', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-200', value: '#c8c7c0', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-300', value: '#9b9a91', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-400', value: '#6e6d63', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-500', value: '#484740', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-600', value: '#2e2d28', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-700', value: '#1c1b18', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-800', value: '#111110', type: 'color' },
+  { category: 'Color / Ink', token: '--eo-ink-900', value: '#080807', type: 'color' },
+  // Colors — Status (Primitive — fixed values)
+  { category: 'Color / Status', token: '--eo-success', value: '#22c55e', type: 'color' },
+  { category: 'Color / Status', token: '--eo-warning', value: '#f59e0b', type: 'color' },
+  { category: 'Color / Status', token: '--eo-error',   value: '#ef4444', type: 'color' },
+  { category: 'Color / Status', token: '--eo-info',    value: '#3b82f6', type: 'color' },
+  // Colors — Accent
+  { category: 'Color / Accent', token: '--eo-electric', value: '#a855f7', type: 'color' },
+  { category: 'Color / Accent', token: '--eo-acid',     value: '#84cc16', type: 'color' },
+  { category: 'Color / Accent', token: '--eo-ice',      value: '#06b6d4', type: 'color' },
+  // Semantic — Surface (Dark default)
+  { category: 'Semantic / Surface', token: '--eo-surface-bg',      value: '#0d0d0b', type: 'color' },
+  { category: 'Semantic / Surface', token: '--eo-surface-base',    value: '#131311', type: 'color' },
+  { category: 'Semantic / Surface', token: '--eo-surface-raised',  value: '#1a1a17', type: 'color' },
+  { category: 'Semantic / Surface', token: '--eo-surface-overlay', value: '#222220', type: 'color' },
+  { category: 'Semantic / Surface', token: '--eo-surface-border',  value: 'rgba(255,255,255,0.07)', type: 'color' },
+  // Semantic — Text
+  { category: 'Semantic / Text', token: '--eo-text-primary',   value: '#ffffff', type: 'color' },
+  { category: 'Semantic / Text', token: '--eo-text-secondary', value: '#9b9a91', type: 'color' },
+  { category: 'Semantic / Text', token: '--eo-text-tertiary',  value: '#6e6d63', type: 'color' },
+  { category: 'Semantic / Text', token: '--eo-text-disabled',  value: '#484740', type: 'color' },
+  { category: 'Semantic / Text', token: '--eo-text-on-accent', value: '#0d0d0b', type: 'color' },
+  // Semantic — Accent
+  { category: 'Semantic / Accent', token: '--eo-accent',        value: '#1ecfa3', type: 'color' },
+  { category: 'Semantic / Accent', token: '--eo-accent-hover',  value: '#52e2bc', type: 'color' },
+  { category: 'Semantic / Accent', token: '--eo-accent-active', value: '#0fb389', type: 'color' },
+  { category: 'Semantic / Accent', token: '--eo-accent-subtle', value: 'rgba(30,207,163,0.12)', type: 'color' },
+  { category: 'Semantic / Accent', token: '--eo-accent-border', value: 'rgba(30,207,163,0.30)', type: 'color' },
+  { category: 'Semantic / Accent', token: '--eo-focus-ring',    value: 'rgba(30,207,163,0.45)', type: 'color' },
+  // Semantic — Status (mode-aware)
+  { category: 'Semantic / Status', token: '--eo-status-success', value: '#22c55e', type: 'color' },
+  { category: 'Semantic / Status', token: '--eo-status-warning', value: '#f59e0b', type: 'color' },
+  { category: 'Semantic / Status', token: '--eo-status-error',   value: '#ef4444', type: 'color' },
+  { category: 'Semantic / Status', token: '--eo-status-info',    value: '#3b82f6', type: 'color' },
+  // Typography
+  { category: 'Typography / Size', token: '--eo-text-xs',   value: '0.75rem',  type: 'size', px: '12px' },
+  { category: 'Typography / Size', token: '--eo-text-sm',   value: '0.875rem', type: 'size', px: '14px' },
+  { category: 'Typography / Size', token: '--eo-text-base', value: '1rem',     type: 'size', px: '16px' },
+  { category: 'Typography / Size', token: '--eo-text-lg',   value: '1.125rem', type: 'size', px: '18px' },
+  { category: 'Typography / Size', token: '--eo-text-xl',   value: '1.25rem',  type: 'size', px: '20px' },
+  { category: 'Typography / Size', token: '--eo-text-2xl',  value: '1.5rem',   type: 'size', px: '24px' },
+  { category: 'Typography / Size', token: '--eo-text-3xl',  value: '1.875rem', type: 'size', px: '30px' },
+  { category: 'Typography / Size', token: '--eo-text-4xl',  value: '2.25rem',  type: 'size', px: '36px' },
+  { category: 'Typography / Size', token: '--eo-text-5xl',  value: '3rem',     type: 'size', px: '48px' },
+  { category: 'Typography / Size', token: '--eo-text-6xl',  value: '3.75rem',  type: 'size', px: '60px' },
+  { category: 'Typography / Size', token: '--eo-text-7xl',  value: '4.5rem',   type: 'size', px: '72px' },
+  { category: 'Typography / Size', token: '--eo-text-8xl',  value: '6rem',     type: 'size', px: '96px' },
+  // Spacing (4px base grid)
+  { category: 'Spacing', token: '--eo-space-1',  value: '0.25rem', type: 'size', px: '4px' },
+  { category: 'Spacing', token: '--eo-space-2',  value: '0.5rem',  type: 'size', px: '8px' },
+  { category: 'Spacing', token: '--eo-space-3',  value: '0.75rem', type: 'size', px: '12px' },
+  { category: 'Spacing', token: '--eo-space-4',  value: '1rem',    type: 'size', px: '16px' },
+  { category: 'Spacing', token: '--eo-space-5',  value: '1.25rem', type: 'size', px: '20px' },
+  { category: 'Spacing', token: '--eo-space-6',  value: '1.5rem',  type: 'size', px: '24px' },
+  { category: 'Spacing', token: '--eo-space-7',  value: '1.75rem', type: 'size', px: '28px' },
+  { category: 'Spacing', token: '--eo-space-8',  value: '2rem',    type: 'size', px: '32px' },
+  { category: 'Spacing', token: '--eo-space-9',  value: '2.25rem', type: 'size', px: '36px' },
+  { category: 'Spacing', token: '--eo-space-10', value: '2.5rem',  type: 'size', px: '40px' },
+  { category: 'Spacing', token: '--eo-space-12', value: '3rem',    type: 'size', px: '48px' },
+  { category: 'Spacing', token: '--eo-space-14', value: '3.5rem',  type: 'size', px: '56px' },
+  { category: 'Spacing', token: '--eo-space-16', value: '4rem',    type: 'size', px: '64px' },
+  { category: 'Spacing', token: '--eo-space-20', value: '5rem',    type: 'size', px: '80px' },
+  { category: 'Spacing', token: '--eo-space-24', value: '6rem',    type: 'size', px: '96px' },
+  { category: 'Spacing', token: '--eo-space-28', value: '7rem',    type: 'size', px: '112px' },
+  { category: 'Spacing', token: '--eo-space-32', value: '8rem',    type: 'size', px: '128px' },
+  // Border Radius
+  { category: 'Radius', token: '--eo-radius-sm',   value: '4px',    type: 'size', px: '4px' },
+  { category: 'Radius', token: '--eo-radius-md',   value: '8px',    type: 'size', px: '8px' },
+  { category: 'Radius', token: '--eo-radius-lg',   value: '12px',   type: 'size', px: '12px' },
+  { category: 'Radius', token: '--eo-radius-xl',   value: '16px',   type: 'size', px: '16px' },
+  { category: 'Radius', token: '--eo-radius-2xl',  value: '20px',   type: 'size', px: '20px' },
+  { category: 'Radius', token: '--eo-radius-3xl',  value: '28px',   type: 'size', px: '28px' },
+  { category: 'Radius', token: '--eo-radius-4xl',  value: '32px',   type: 'size', px: '32px' },
+  { category: 'Radius', token: '--eo-radius-full', value: '9999px', type: 'size', px: '9999px' },
+  // Shadows
+  { category: 'Shadow', token: '--eo-shadow-xs',      value: '0 1px 2px rgba(0,0,0,0.3)',    type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-sm',      value: '0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)', type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-md',      value: '0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)', type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-lg',      value: '0 10px 30px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.3)', type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-xl',      value: '0 20px 60px rgba(0,0,0,0.7)',  type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-glow',    value: '0 0 40px rgba(30,207,163,0.35), 0 0 80px rgba(30,207,163,0.15)', type: 'shadow' },
+  { category: 'Shadow', token: '--eo-shadow-glow-sm', value: '0 0 16px rgba(30,207,163,0.4)', type: 'shadow' },
+  // Motion — Duration
+  { category: 'Motion / Duration', token: '--eo-duration-instant', value: '80ms',  type: 'size' },
+  { category: 'Motion / Duration', token: '--eo-duration-fast',    value: '150ms', type: 'size' },
+  { category: 'Motion / Duration', token: '--eo-duration-normal',  value: '220ms', type: 'size' },
+  { category: 'Motion / Duration', token: '--eo-duration-slow',    value: '350ms', type: 'size' },
+  { category: 'Motion / Duration', token: '--eo-duration-crawl',   value: '500ms', type: 'size' },
+  // Fonts
+  { category: 'Typography / Font', token: '--eo-font-display', value: "'Space Grotesk', sans-serif", type: 'font' },
+  { category: 'Typography / Font', token: '--eo-font-mono',    value: "'DM Mono', monospace",        type: 'font' },
+  { category: 'Typography / Font', token: '--eo-font-code',    value: "'Space Mono', monospace",     type: 'font' },
+];
+
+const CATEGORIES = ['All', ...Array.from(new Set(ALL_TOKENS.map(t => t.category.split(' / ')[0])))];
+
+function TokenRow({ token, even }) {
+  const [copied, setCopied] = useState(false);
+  const copy = (text) => {
+    navigator.clipboard?.writeText(text).catch(()=>{});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const preview = () => {
+    if (token.type === 'color') return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+          width: '28px', height: '28px', borderRadius: '6px',
+          background: token.value,
+          border: token.value === '#ffffff' ? '1px solid rgba(0,0,0,0.15)' : 'none',
+          flexShrink: 0,
+        }}></div>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9b9a91' }}>{token.value}</span>
+      </div>
+    );
+    if (token.type === 'size') return (
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9b9a91' }}>
+        {token.value}{token.px ? ` (${token.px})` : ''}
+      </span>
+    );
+    if (token.type === 'shadow') return (
+      <div style={{
+        width: '28px', height: '28px', borderRadius: '6px',
+        background: token.token.includes('glow') ? '#1ecfa3' : '#2e2d28',
+        boxShadow: token.value, flexShrink: 0,
+      }}></div>
+    );
+    if (token.type === 'font') return (
+      <span style={{ fontFamily: token.value, fontSize: '14px', color: '#9b9a91' }}>Aa</span>
+    );
+    return null;
+  };
+
+  return (
+    <tr style={{
+      background: even ? 'rgba(255,255,255,0.015)' : 'transparent',
+      transition: 'background 0.15s',
+    }}
+    onMouseEnter={e => e.currentTarget.style.background = 'rgba(30,207,163,0.05)'}
+    onMouseLeave={e => e.currentTarget.style.background = even ? 'rgba(255,255,255,0.015)' : 'transparent'}
+    >
+      <td style={{ padding: '12px 20px', whiteSpace: 'nowrap' }}>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: '12px',
+          color: '#52e2bc', letterSpacing: '0.02em',
+        }}>{token.token}</span>
+      </td>
+      <td style={{ padding: '12px 20px' }}>{preview()}</td>
+      <td style={{ padding: '12px 20px' }}>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: '11px',
+          color: '#6e6d63',
+          background: 'rgba(255,255,255,0.03)',
+          padding: '3px 8px', borderRadius: '4px',
+          border: '1px solid rgba(255,255,255,0.05)',
+        }}>{token.category}</span>
+      </td>
+      <td style={{ padding: '12px 20px', textAlign: 'right' }}>
+        <button onClick={() => copy(token.token)} style={{
+          background: 'none', border: '1px solid rgba(255,255,255,0.08)',
+          color: copied ? '#1ecfa3' : '#6e6d63',
+          fontFamily: 'var(--font-mono)', fontSize: '11px',
+          padding: '4px 10px', borderRadius: '4px', cursor: 'pointer',
+          transition: 'all 0.2s',
+        }}>{copied ? '✓ copied' : 'copy token'}</button>
+      </td>
+    </tr>
+  );
+}
+
+function App() {
+  const [search, setSearch] = useState('');
+  const [activeCat, setActiveCat] = useState('All');
+
+  const filtered = useMemo(() => {
+    return ALL_TOKENS.filter(t => {
+      const matchCat = activeCat === 'All' || t.category.startsWith(activeCat);
+      const matchSearch = !search || t.token.toLowerCase().includes(search.toLowerCase()) || t.value.toLowerCase().includes(search.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [search, activeCat]);
+
+  // Export as CSS
+  const exportCSS = () => {
+    const lines = [':root {'];
+    ALL_TOKENS.forEach(t => {
+      lines.push(`  ${t.token}: ${t.value};`);
+    });
+    lines.push('}');
+    const blob = new Blob([lines.join('\n')], { type: 'text/css' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'eureka-orange-tokens.css'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export as JSON
+  const exportJSON = () => {
+    const obj = {};
+    ALL_TOKENS.forEach(t => { obj[t.token.replace('--', '')] = t.value; });
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'eureka-orange-tokens.json'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Header */}
+      <div style={{
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '0 40px',
+        background: 'rgba(13,13,11,0.95)',
+        backdropFilter: 'blur(20px)',
+        position: 'sticky', top: 0, zIndex: 10,
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          height: '56px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <a href="EurekaOrange Design System.html" style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              textDecoration: 'none', color: '#9b9a91',
+              fontFamily: 'var(--font-mono)', fontSize: '12px',
+            }}>← Design System</a>
+            <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)' }}></div>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '14px' }}>Token Reference</span>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: '10px',
+              color: '#1ecfa3', background: 'rgba(30,207,163,0.1)',
+              padding: '2px 8px', borderRadius: '12px',
+              border: '1px solid rgba(30,207,163,0.2)',
+            }}>{ALL_TOKENS.length} tokens</span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={exportCSS} style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              color: '#9b9a91', fontFamily: 'var(--font-mono)', fontSize: '12px',
+              padding: '7px 16px', borderRadius: '6px', cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}>↓ CSS</button>
+            <button onClick={exportJSON} style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              color: '#9b9a91', fontFamily: 'var(--font-mono)', fontSize: '12px',
+              padding: '7px 16px', borderRadius: '6px', cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}>↓ JSON</button>
+          </div>
+        </div>
+
+        {/* Search + filters */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', paddingBottom: '16px' }}>
+          <input
+            type="text"
+            placeholder="Search tokens…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: `1px solid ${search ? 'rgba(30,207,163,0.4)' : 'rgba(255,255,255,0.08)'}`,
+              color: '#fff', fontFamily: 'var(--font-mono)', fontSize: '13px',
+              padding: '8px 16px', borderRadius: '8px', outline: 'none',
+              width: '260px', transition: 'border-color 0.2s',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {CATEGORIES.map(cat => (
+              <button key={cat} onClick={() => setActiveCat(cat)} style={{
+                background: activeCat === cat ? 'rgba(30,207,163,0.12)' : 'transparent',
+                border: activeCat === cat ? '1px solid rgba(30,207,163,0.3)' : '1px solid rgba(255,255,255,0.07)',
+                color: activeCat === cat ? '#52e2bc' : '#6e6d63',
+                fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.05em',
+                padding: '5px 12px', borderRadius: '6px', cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}>{cat}</button>
+            ))}
+          </div>
+          <div style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6e6d63' }}>
+            {filtered.length} results
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div style={{ flex: 1, padding: '24px 40px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '260px' }} />
+            <col style={{ width: '220px' }} />
+            <col style={{ width: '180px' }} />
+            <col />
+          </colgroup>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              {['Token', 'Value', 'Category', ''].map(h => (
+                <th key={h} style={{
+                  padding: '10px 20px', textAlign: h === '' ? 'right' : 'left',
+                  fontFamily: 'var(--font-mono)', fontSize: '10px',
+                  color: '#484740', letterSpacing: '0.1em', textTransform: 'uppercase',
+                  fontWeight: 500,
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((t, i) => <TokenRow key={t.token} token={t} even={i % 2 === 0} />)}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <div style={{
+            textAlign: 'center', padding: '80px',
+            color: '#484740', fontFamily: 'var(--font-mono)', fontSize: '13px',
+          }}>
+            No tokens found for "{search}"
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        padding: '20px 40px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#484740' }}>
+          EurekaOrange Design System · v1.0.0 · {ALL_TOKENS.length} design tokens
+        </span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#484740' }}>
+          CSS Custom Properties · JSON
+        </span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

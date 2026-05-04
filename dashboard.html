@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="eureka-orange.css">
+<style>
+  body { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--eo-surface-base);
+    border-right: 1px solid var(--eo-surface-border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0;
+  }
+  .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Nav item */
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-radius: var(--eo-radius-md);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 150ms; text-decoration: none; color: var(--eo-text-secondary);
+    margin: 1px 8px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--eo-text-primary); }
+  .nav-item.active {
+    background: var(--eo-accent-subtle); color: var(--eo-accent);
+    border: 1px solid var(--eo-accent-border);
+  }
+  .nav-item .icon { width: 16px; text-align: center; font-size: 14px; flex-shrink: 0; }
+
+  /* KPI card */
+  .kpi {
+    background: var(--eo-surface-raised); border: 1px solid var(--eo-surface-border);
+    border-radius: var(--eo-radius-xl); padding: 20px 24px;
+    transition: all 220ms;
+  }
+  .kpi:hover { border-color: var(--eo-accent-border); transform: translateY(-2px); }
+
+  /* Chart bar */
+  .bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    transition: opacity 200ms;
+    cursor: pointer;
+  }
+  .bar:hover { opacity: 0.8; }
+
+  /* Table row */
+  .trow { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 150ms; }
+  .trow:hover { background: rgba(255,255,255,0.025); }
+  .trow:last-child { border-bottom: none; }
+
+  @keyframes count-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .count-in { animation: count-in 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <!-- Logo -->
+  <div style="padding:20px 16px 16px;border-bottom:1px solid var(--eo-surface-border);">
+    <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:4px;">
+      <svg width="24" height="24" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="38" stroke="#1ecfa3" stroke-width="2"/>
+        <path d="M40 20L54 28L54 52" stroke="#1ecfa3" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M26 28L40 20" stroke="#52e2bc" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="4" fill="#1ecfa3"/>
+      </svg>
+      <span style="font-weight:700;font-size:14px;color:#fff;letter-spacing:-0.01em;">EurekaOrange</span>
+    </a>
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);letter-spacing:0.08em;">WORKSPACE</div>
+  </div>
+
+  <!-- Nav -->
+  <nav style="flex:1;padding:12px 0;overflow-y:auto;">
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);letter-spacing:0.1em;padding:8px 22px 6px;">MAIN</div>
+    <a class="nav-item active" href="#">
+      <span class="icon">◉</span> Dashboard
+    </a>
+    <a class="nav-item" href="components.html">
+      <span class="icon">◈</span> Components
+    </a>
+    <a class="nav-item" href="tokens.html">
+      <span class="icon">⬡</span> Tokens
+    </a>
+    <a class="nav-item" href="icons.html">
+      <span class="icon">✦</span> Icons
+    </a>
+    <a class="nav-item" href="motion.html">
+      <span class="icon">⚡</span> Motion
+    </a>
+
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);letter-spacing:0.1em;padding:16px 22px 6px;">PRODUCTS</div>
+    <a class="nav-item" href="landing.html">
+      <span class="icon">🏠</span> Landing
+    </a>
+    <a class="nav-item" href="settings.html">
+      <span class="icon">⚙</span> Settings
+    </a>
+    <a class="nav-item" href="onboarding.html">
+      <span class="icon">→</span> Onboarding
+    </a>
+
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);letter-spacing:0.1em;padding:16px 22px 6px;">TOOLS</div>
+    <a class="nav-item" href="figma-variables.html">
+      <span class="icon">◇</span> Figma Export
+    </a>
+    <a class="nav-item" href="brand-assets.html">
+      <span class="icon">◎</span> Brand Assets
+    </a>
+  </nav>
+
+  <!-- User -->
+  <div style="padding:12px 16px;border-top:1px solid var(--eo-surface-border);display:flex;align-items:center;gap:10px;">
+    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1ecfa3,#0fb389);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#0d0d0b;flex-shrink:0;">K</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Kira Tanaka</div>
+      <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);">Pro plan</div>
+    </div>
+    <div style="color:var(--eo-text-tertiary);font-size:16px;cursor:pointer;">⋯</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Top bar -->
+  <header style="height:56px;border-bottom:1px solid var(--eo-surface-border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(13,13,11,0.8);backdrop-filter:blur(16px);position:sticky;top:0;z-index:40;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:14px;font-weight:600;">Dashboard</span>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">/ Overview</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <!-- Search -->
+      <div style="position:relative;display:flex;align-items:center;">
+        <svg style="position:absolute;left:10px;pointer-events:none;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--eo-text-disabled)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input placeholder="Search…" style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-full);color:var(--eo-text-primary);font-family:var(--eo-font-display);font-size:13px;padding:7px 14px 7px 30px;outline:none;width:200px;">
+      </div>
+      <!-- Notif -->
+      <button style="width:34px;height:34px;border-radius:var(--eo-radius-md);background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--eo-text-secondary)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--eo-accent);border:2px solid var(--eo-surface-base);"></span>
+      </button>
+      <!-- Avatar -->
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1ecfa3,#0fb389);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#0d0d0b;cursor:pointer;">K</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div style="padding:32px;flex:1;" id="dashboard-content">
+
+    <!-- Page header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;">
+      <div>
+        <h1 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;">Good morning, Kira ✦</h1>
+        <p style="font-size:14px;color:var(--eo-text-secondary);">Here's what's happening with EurekaOrange today.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <select style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-md);color:var(--eo-text-secondary);font-family:var(--eo-font-display);font-size:13px;padding:8px 14px;outline:none;cursor:pointer;">
+          <option>Last 30 days</option>
+          <option>Last 7 days</option>
+          <option>This month</option>
+        </select>
+        <button style="display:flex;align-items:center;gap:6px;background:var(--eo-accent);color:#0d0d0b;border:none;border-radius:var(--eo-radius-md);font-family:var(--eo-font-display);font-weight:600;font-size:13px;padding:8px 16px;cursor:pointer;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;" id="kpi-grid">
+    </div>
+
+    <!-- Charts row -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;">
+
+      <!-- Bar chart -->
+      <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-xl);padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <div>
+            <div style="font-weight:600;font-size:15px;margin-bottom:3px;">Token Usage</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Across all products · Monthly</div>
+          </div>
+          <div style="display:flex;gap:16px;font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">
+            <div style="display:flex;align-items:center;gap:5px;"><div style="width:8px;height:8px;border-radius:2px;background:var(--eo-accent);"></div>2025</div>
+            <div style="display:flex;align-items:center;gap:5px;"><div style="width:8px;height:8px;border-radius:2px;background:rgba(30,207,163,0.25);"></div>2024</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;height:140px;" id="bar-chart"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;" id="bar-labels"></div>
+      </div>
+
+      <!-- Donut chart -->
+      <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-xl);padding:24px;">
+        <div style="font-weight:600;font-size:15px;margin-bottom:3px;">Token Types</div>
+        <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);margin-bottom:20px;">Distribution</div>
+        <!-- SVG donut -->
+        <div style="display:flex;justify-content:center;margin-bottom:20px;">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="20"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#1ecfa3" stroke-width="20" stroke-dasharray="113 170" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#a855f7" stroke-width="20" stroke-dasharray="57 226" stroke-dashoffset="-113" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#06b6d4" stroke-width="20" stroke-dasharray="40 243" stroke-dashoffset="-170" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="23 260" stroke-dashoffset="-210" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+            <text x="60" y="55" text-anchor="middle" fill="#fff" font-family="Space Grotesk" font-weight="700" font-size="18">614</text>
+            <text x="60" y="70" text-anchor="middle" fill="#6e6d63" font-family="DM Mono" font-size="9">tokens</text>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:#1ecfa3;"></div><span style="font-size:12px;color:var(--eo-text-secondary);">Color</span></div>
+            <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-accent);">278 · 45%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:#a855f7;"></div><span style="font-size:12px;color:var(--eo-text-secondary);">Spacing</span></div>
+            <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-secondary);">141 · 23%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:#06b6d4;"></div><span style="font-size:12px;color:var(--eo-text-secondary);">Typography</span></div>
+            <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-secondary);">122 · 20%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;border-radius:2px;background:#f59e0b;"></div><span style="font-size:12px;color:var(--eo-text-secondary);">Motion</span></div>
+            <span style="font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-secondary);">73 · 12%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line chart + Activity -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+
+      <!-- Sparkline -->
+      <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-xl);padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+          <div>
+            <div style="font-weight:600;font-size:15px;margin-bottom:3px;">Component Adoption</div>
+            <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">Teams using EurekaOrange</div>
+          </div>
+          <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);background:var(--eo-accent-subtle);padding:3px 8px;border-radius:var(--eo-radius-full);border:1px solid var(--eo-accent-border);">+24%</span>
+        </div>
+        <!-- SVG line chart -->
+        <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="line-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1ecfa3" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#1ecfa3" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,80 C30,75 50,60 80,55 C110,50 130,40 160,35 C190,30 210,32 240,25 C270,18 290,20 320,15 C350,10 370,8 400,5 L400,100 L0,100 Z" fill="url(#line-fill)"/>
+          <path d="M0,80 C30,75 50,60 80,55 C110,50 130,40 160,35 C190,30 210,32 240,25 C270,18 290,20 320,15 C350,10 370,8 400,5" fill="none" stroke="#1ecfa3" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);margin-top:8px;">
+          <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+        </div>
+      </div>
+
+      <!-- Activity feed -->
+      <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-xl);padding:24px;">
+        <div style="font-weight:600;font-size:15px;margin-bottom:4px;">Recent Activity</div>
+        <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);margin-bottom:20px;">Latest changes</div>
+        <div style="display:flex;flex-direction:column;gap:0;" id="activity-feed"></div>
+      </div>
+    </div>
+
+    <!-- Projects table -->
+    <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-xl);overflow:hidden;">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Connected Products</div>
+          <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">All products using EurekaOrange tokens</div>
+        </div>
+        <button style="background:none;border:1px solid var(--eo-surface-border);color:var(--eo-text-secondary);font-family:var(--eo-font-display);font-size:12px;padding:7px 14px;border-radius:var(--eo-radius-md);cursor:pointer;">View all →</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;" id="products-table"></table>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ── KPI data ──────────────────────────────────── */
+const KPIS = [
+  { label: 'Design Tokens',    value: '614',   delta: '+12', up: true,  sub: 'vs last month' },
+  { label: 'Active Products',  value: '8',     delta: '+2',  up: true,  sub: 'using system' },
+  { label: 'Components',       value: '48',    delta: '+5',  up: true,  sub: 'in library' },
+  { label: 'Icons',            value: '56',    delta: '0',   up: true,  sub: 'duotone set' },
+];
+
+const kpiGrid = document.getElementById('kpi-grid');
+KPIS.forEach((kpi, i) => {
+  const card = document.createElement('div');
+  card.className = 'kpi count-in';
+  card.style.animationDelay = `${i * 0.08}s`;
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);">${kpi.label}</span>
+      <span style="font-family:var(--eo-font-mono);font-size:10px;padding:2px 7px;border-radius:999px;background:${kpi.up ? 'rgba(30,207,163,0.1)' : 'rgba(239,68,68,0.1)'};color:${kpi.up ? '#1ecfa3' : '#ef4444'};border:1px solid ${kpi.up ? 'rgba(30,207,163,0.25)' : 'rgba(239,68,68,0.25)'};">${kpi.up ? '↑' : '↓'} ${kpi.delta}</span>
+    </div>
+    <div style="font-weight:700;font-size:32px;letter-spacing:-0.03em;margin-bottom:4px;">${kpi.value}</div>
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);">${kpi.sub}</div>
+  `;
+  kpiGrid.appendChild(card);
+});
+
+/* ── Bar chart ─────────────────────────────────── */
+const barData = [
+  { month: 'Jan', v25: 42, v24: 30 },
+  { month: 'Feb', v25: 58, v24: 38 },
+  { month: 'Mar', v25: 53, v24: 45 },
+  { month: 'Apr', v25: 74, v24: 52 },
+  { month: 'May', v25: 68, v24: 58 },
+  { month: 'Jun', v25: 82, v24: 62 },
+  { month: 'Jul', v25: 78, v24: 68 },
+  { month: 'Aug', v25: 91, v24: 72 },
+  { month: 'Sep', v25: 86, v24: 75 },
+  { month: 'Oct', v25: 95, v24: 80 },
+  { month: 'Nov', v25: 88, v24: 84 },
+  { month: 'Dec', v25: 100, v24: 88 },
+];
+const barChart = document.getElementById('bar-chart');
+const barLabels = document.getElementById('bar-labels');
+barData.forEach(d => {
+  const pair = document.createElement('div');
+  pair.style.cssText = 'flex:1;display:flex;gap:2px;align-items:flex-end;height:100%;';
+  pair.innerHTML = `
+    <div class="bar" style="flex:1;height:${d.v25}%;background:var(--eo-accent);box-shadow:0 0 8px rgba(30,207,163,0.3);"></div>
+    <div class="bar" style="flex:1;height:${d.v24}%;background:rgba(30,207,163,0.2);"></div>
+  `;
+  barChart.appendChild(pair);
+  const lbl = document.createElement('div');
+  lbl.style.cssText = 'flex:1;text-align:center;font-family:var(--eo-font-mono);font-size:9px;color:var(--eo-text-disabled);';
+  lbl.textContent = d.month;
+  barLabels.appendChild(lbl);
+});
+
+/* ── Activity ──────────────────────────────────── */
+const ACTIVITIES = [
+  { icon: '✦', color: '#1ecfa3', text: 'jade-400 token updated', time: '2m ago' },
+  { icon: '◈', color: '#a855f7', text: 'Button component added', time: '18m ago' },
+  { icon: '⬡', color: '#06b6d4', text: 'Token export triggered', time: '1h ago' },
+  { icon: '◎', color: '#f59e0b', text: 'Brand assets updated', time: '3h ago' },
+  { icon: '⚡', color: '#1ecfa3', text: 'Motion tokens revised', time: '5h ago' },
+];
+const feed = document.getElementById('activity-feed');
+ACTIVITIES.forEach((a, i) => {
+  const item = document.createElement('div');
+  item.style.cssText = `display:flex;align-items:center;gap:12px;padding:10px 0;${i < ACTIVITIES.length-1 ? 'border-bottom:1px solid rgba(255,255,255,0.04);' : ''}`;
+  item.innerHTML = `
+    <div style="width:28px;height:28px;border-radius:8px;background:${a.color}18;border:1px solid ${a.color}30;display:flex;align-items:center;justify-content:center;font-size:12px;color:${a.color};flex-shrink:0;">${a.icon}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.text}</div>
+    </div>
+    <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-disabled);flex-shrink:0;">${a.time}</div>
+  `;
+  feed.appendChild(item);
+});
+
+/* ── Products table ────────────────────────────── */
+const PRODUCTS = [
+  { name: 'Aurora Dashboard', type: 'Web App',    tokens: 142, status: 'Stable',  coverage: 94, updated: '今日' },
+  { name: 'Prism Mobile',     type: 'iOS / Android', tokens: 89, status: 'Beta', coverage: 72, updated: '昨日' },
+  { name: 'Orbit Web',        type: 'Marketing',  tokens: 203, status: 'New',    coverage: 88, updated: '今日' },
+  { name: 'Nexus Console',    type: 'Admin',      tokens: 178, status: 'Stable', coverage: 97, updated: '2日前' },
+  { name: 'Echo Analytics',   type: 'Data',       tokens: 56,  status: 'Alpha',  coverage: 45, updated: '4日前' },
+];
+const STATUS_COLORS = {
+  Stable: { bg: 'rgba(30,207,163,0.1)',  c: '#52e2bc', b: 'rgba(30,207,163,0.25)' },
+  Beta:   { bg: 'rgba(168,85,247,0.1)', c: '#c084fc', b: 'rgba(168,85,247,0.25)' },
+  New:    { bg: 'rgba(30,207,163,0.08)', c: '#1ecfa3', b: 'rgba(30,207,163,0.2)' },
+  Alpha:  { bg: 'rgba(6,182,212,0.1)',  c: '#22d3ee', b: 'rgba(6,182,212,0.25)' },
+};
+const table = document.getElementById('products-table');
+// Header
+const thead = document.createElement('thead');
+thead.innerHTML = `<tr style="border-bottom:1px solid rgba(255,255,255,0.07);">
+  ${['Product','Type','Tokens','Coverage','Status','Updated'].map(h =>
+    `<th style="padding:11px 20px;text-align:left;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.1em;text-transform:uppercase;font-weight:500;">${h}</th>`
+  ).join('')}
+</tr>`;
+table.appendChild(thead);
+const tbody = document.createElement('tbody');
+PRODUCTS.forEach(p => {
+  const sc = STATUS_COLORS[p.status];
+  const tr = document.createElement('tr');
+  tr.className = 'trow';
+  tr.innerHTML = `
+    <td style="padding:14px 20px;font-weight:500;font-size:14px;">${p.name}</td>
+    <td style="padding:14px 20px;font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-tertiary);">${p.type}</td>
+    <td style="padding:14px 20px;font-family:var(--eo-font-mono);font-size:13px;color:var(--eo-accent);">${p.tokens}</td>
+    <td style="padding:14px 20px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${p.coverage}%;background:var(--eo-accent);border-radius:3px;box-shadow:0 0 6px rgba(30,207,163,0.4);"></div>
+        </div>
+        <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-secondary);min-width:30px;text-align:right;">${p.coverage}%</span>
+      </div>
+    </td>
+    <td style="padding:14px 20px;"><span style="font-family:var(--eo-font-mono);font-size:11px;padding:3px 10px;border-radius:999px;background:${sc.bg};color:${sc.c};border:1px solid ${sc.b};">${p.status}</span></td>
+    <td style="padding:14px 20px;font-family:var(--eo-font-mono);font-size:12px;color:var(--eo-text-tertiary);">${p.updated}</td>
+  `;
+  tbody.appendChild(tr);
+});
+table.appendChild(tbody);
+</script>
+
+</body>
+</html>

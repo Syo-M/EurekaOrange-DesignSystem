@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="eureka-orange.css">
+<style>
+  body { min-height: 100vh; }
+  @keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(30,207,163,0.5)} 100%{box-shadow:0 0 0 16px rgba(30,207,163,0)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+  .fade-up { animation: fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+  .fade-up-1 { animation-delay: 0.05s; }
+  .fade-up-2 { animation-delay: 0.10s; }
+  .fade-up-3 { animation-delay: 0.15s; }
+  .fade-up-4 { animation-delay: 0.20s; }
+
+  .card-link {
+    display: block;
+    background: var(--eo-surface-raised);
+    border: 1px solid var(--eo-surface-border);
+    border-radius: var(--eo-radius-2xl);
+    padding: 28px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 220ms cubic-bezier(0.16,1,0.3,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .card-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(30,207,163,0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 220ms;
+  }
+  .card-link:hover {
+    border-color: var(--eo-accent-border);
+    transform: translateY(-3px);
+    box-shadow: var(--eo-shadow-md), 0 0 24px rgba(30,207,163,0.08);
+  }
+  .card-link:hover::before { opacity: 1; }
+  .card-link:hover .card-arrow { transform: translate(2px,-2px); opacity: 1; }
+
+  .card-arrow {
+    position: absolute; top: 20px; right: 20px;
+    color: var(--eo-accent); font-size: 16px;
+    opacity: 0; transition: all 220ms cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .tag {
+    display: inline-flex; align-items: center;
+    font-family: var(--eo-font-mono); font-size: 10px;
+    font-weight: 500; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: var(--eo-radius-full);
+    border: 1px solid; white-space: nowrap;
+  }
+  .tag-foundation { background: rgba(30,207,163,0.08);  color: var(--eo-jade-300); border-color: rgba(30,207,163,0.2); }
+  .tag-component  { background: rgba(168,85,247,0.08); color: #c084fc; border-color: rgba(168,85,247,0.2); }
+  .tag-product    { background: rgba(6,182,212,0.08);  color: #22d3ee; border-color: rgba(6,182,212,0.2); }
+  .tag-tools      { background: rgba(245,158,11,0.08); color: #fbbf24; border-color: rgba(245,158,11,0.2); }
+  .tag-new        { background: rgba(30,207,163,0.15); color: var(--eo-jade-400); border-color: rgba(30,207,163,0.35); }
+
+  .icon-box {
+    width: 48px; height: 48px; border-radius: var(--eo-radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px; flex-shrink: 0;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--eo-accent);
+    animation: pulse-ring 2s infinite;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    background: var(--eo-surface-raised);
+    border: 1px solid var(--eo-surface-border);
+    border-radius: var(--eo-radius-full);
+    color: var(--eo-text-primary);
+    font-family: var(--eo-font-display);
+    font-size: 14px;
+    padding: 10px 20px 10px 44px;
+    outline: none;
+    width: 280px;
+    transition: all 220ms;
+  }
+  .search-input:focus { border-color: var(--eo-accent-border); box-shadow: 0 0 0 3px var(--eo-focus-ring); width: 320px; }
+  .search-input::placeholder { color: var(--eo-text-disabled); }
+
+  .version-badge {
+    font-family: var(--eo-font-mono); font-size: 10px;
+    background: var(--eo-accent-subtle); color: var(--eo-accent);
+    border: 1px solid var(--eo-accent-border);
+    padding: 2px 10px; border-radius: var(--eo-radius-full);
+    letter-spacing: 0.05em;
+  }
+
+  /* Noise overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="eo-skip-link">Skip to main content</a>
+
+<!-- HERO -->
+<div style="padding:80px 48px 64px;position:relative;overflow:hidden;border-bottom:1px solid var(--eo-surface-border);">
+  <!-- BG grid -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;"></div>
+  <!-- Glow -->
+  <div style="position:absolute;right:10%;top:50%;transform:translateY(-50%);width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(30,207,163,0.1) 0%,transparent 70%);pointer-events:none;animation:float 8s ease-in-out infinite;"></div>
+
+  <div style="position:relative;max-width:700px;" class="fade-up">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+      <div class="status-dot"></div>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);letter-spacing:0.1em;">DESIGN SYSTEM — LIVE</span>
+    </div>
+    <h1 style="font-weight:700;font-size:clamp(40px,6vw,72px);letter-spacing:-0.04em;line-height:0.95;margin-bottom:20px;">
+      EurekaOrange<br>
+      <span class="eo-gradient-text">Design System.</span>
+    </h1>
+    <p style="font-size:17px;color:var(--eo-text-secondary);line-height:1.7;max-width:560px;margin-bottom:32px;">
+      複数プロダクト横断で使えるトークンベースのデザインシステム。カラー・タイポグラフィ・コンポーネント・モーション・アイコンの統一された体系。
+    </p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:28px;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,var(--eo-jade-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">614+</div>
+        <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.08em;margin-top:2px;">Tokens</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:28px;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,var(--eo-jade-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">56</div>
+        <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.08em;margin-top:2px;">Icons</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:28px;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,var(--eo-jade-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">10</div>
+        <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.08em;margin-top:2px;">Pages</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:28px;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff,var(--eo-jade-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2</div>
+        <div style="font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-text-tertiary);letter-spacing:0.08em;margin-top:2px;">Themes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main id="main-content" style="padding:48px 48px 80px;max-width:1400px;margin:0 auto;"><div id="cards-container">
+
+  <!-- Section: Foundation -->
+  <div class="section-group" data-label="Foundation" style="margin-bottom:48px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--eo-accent);box-shadow:var(--eo-shadow-glow-sm);flex-shrink:0;"></div>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);letter-spacing:0.1em;text-transform:uppercase;">Foundation</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+
+      <a href="EurekaOrange Design System.html" class="card-link fade-up fade-up-1" data-search="design system colors typography spacing components brand">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(30,207,163,0.1);">🎨</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;">Design System</h3>
+        </div>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">カラーパレット・タイポグラフィ・スペーシング・シャドウ・コンポーネントを網羅したメインカタログ。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-foundation">Colors</span>
+          <span class="tag tag-foundation">Typography</span>
+          <span class="tag tag-foundation">Spacing</span>
+        </div>
+      </a>
+
+      <a href="tokens.html" class="card-link fade-up fade-up-2" data-search="tokens color spacing radius shadow css variables export">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(30,207,163,0.1);">⬡</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;">Token Reference</h3>
+        </div>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">57個のデザイントークン一覧。CSS・JSON形式でダウンロード可能。検索・カテゴリフィルター付き。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-foundation">57 tokens</span>
+          <span class="tag tag-tools">CSS Export</span>
+          <span class="tag tag-tools">JSON Export</span>
+        </div>
+      </a>
+
+      <a href="light-mode-tokens.html" class="card-link fade-up fade-up-3" data-search="light dark mode theme tokens semantic surface text">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(30,207,163,0.1);">◑</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;">Light Mode Tokens</h3>
+        </div>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">ダーク/ライト両テーマのセマンティックトークン比較。data-theme属性でワンライン切替。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-foundation">Dark</span>
+          <span class="tag tag-foundation">Light</span>
+          <span class="tag tag-foundation">Semantic</span>
+        </div>
+      </a>
+
+      <a href="motion.html" class="card-link fade-up fade-up-4" data-search="motion animation easing duration transition principles accessibility">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(30,207,163,0.1);">⚡</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;">Motion Principles</h3>
+        </div>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">Duration・Easing・アニメーションのインタラクティブデモ。reduced-motionアクセシビリティ対応。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-foundation">5 Durations</span>
+          <span class="tag tag-foundation">5 Easings</span>
+          <span class="tag tag-foundation">A11y</span>
+        </div>
+      </a>
+
+      <a href="grid.html" class="card-link fade-up fade-up-1" data-search="grid layout column responsive breakpoint template">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(30,207,163,0.1);">⊞</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;">Grid System</h3>
+          <span class="tag tag-new">New</span>
+        </div>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">12カラムグリッド・レスポンシブブレークポイント・よく使うレイアウトパターンの定義と見本。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-foundation">12 cols</span>
+          <span class="tag tag-foundation">Responsive</span>
+          <span class="tag tag-foundation">Templates</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Section: Components & Assets -->
+  <div class="section-group" data-label="Components" style="margin-bottom:48px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:#a855f7;box-shadow:0 0 10px rgba(168,85,247,0.4);flex-shrink:0;"></div>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:#a855f7;letter-spacing:0.1em;text-transform:uppercase;">Components &amp; Assets</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+
+      <a href="components.html" class="card-link fade-up" data-search="components button form modal table navigation feedback badge input">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(168,85,247,0.1);">◈</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Components</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">ボタン・フォーム・モーダル・テーブル・ナビ・フィードバック・データ表示。インタラクティブデモ付き。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-component">Buttons</span>
+          <span class="tag tag-component">Forms</span>
+          <span class="tag tag-component">Table</span>
+          <span class="tag tag-component">Modal</span>
+        </div>
+      </a>
+
+      <a href="icons.html" class="card-link fade-up fade-up-1" data-search="icons duotone svg navigation ui status brand export">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(168,85,247,0.1);">✦</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Icon System</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">56個のDuotoneアイコン。Navigation・UI・Status・Brand・Dataカテゴリ。SVGエクスポート対応。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-component">56 Icons</span>
+          <span class="tag tag-component">Duotone</span>
+          <span class="tag tag-tools">SVG Export</span>
+        </div>
+      </a>
+
+      <a href="brand-assets.html" class="card-link fade-up fade-up-2" data-search="brand logo banner og twitter social email icon">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(168,85,247,0.1);">◎</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Brand Assets</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">OGイメージ・SNSバナー・メールヘッダー・アプリアイコン・ロゴ各種バリエーション。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-component">Logo</span>
+          <span class="tag tag-component">Banners</span>
+          <span class="tag tag-component">App Icon</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Section: Product Mockups -->
+  <div class="section-group" data-label="Product" style="margin-bottom:48px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:#06b6d4;box-shadow:0 0 10px rgba(6,182,212,0.4);flex-shrink:0;"></div>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:#06b6d4;letter-spacing:0.1em;text-transform:uppercase;">Product Mockups</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+
+      <a href="landing.html" class="card-link fade-up" data-search="landing page marketing hero pricing cta">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(6,182,212,0.1);">🏠</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Landing Page</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">Hi-fiマーケティングページ。Hero・Features・TokenShowcase・Pricing・CTA・Footerを含む完全版。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-product">Hi-fi</span>
+          <span class="tag tag-product">Marketing</span>
+          <span class="tag tag-product">Interactive</span>
+        </div>
+      </a>
+
+      <a href="settings.html" class="card-link fade-up fade-up-1" data-search="settings profile security billing notifications api keys">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(6,182,212,0.1);">⚙</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Settings</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">プロフィール・外観・セキュリティ・請求・通知・API Keys・Danger Zoneの7タブ完全実装。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-product">Hi-fi</span>
+          <span class="tag tag-product">7 Tabs</span>
+          <span class="tag tag-product">Interactive</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Section: Tools & Export -->
+  <div class="section-group" data-label="Tools" style="margin-bottom:48px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+      <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;box-shadow:0 0 10px rgba(245,158,11,0.4);flex-shrink:0;"></div>
+      <span style="font-family:var(--eo-font-mono);font-size:11px;color:#f59e0b;letter-spacing:0.1em;text-transform:uppercase;">Tools &amp; Export</span>
+      <div style="flex:1;height:1px;background:var(--eo-surface-border);"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+
+      <a href="figma-variables.html" class="card-link fade-up" data-search="figma variables json export import plugin collections modes">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(245,158,11,0.1);">◇</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Figma Variables</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">全トークンをFigma Variables JSON形式でエクスポート。Primitives・SemanticのDark/Lightモード対応。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-tools">JSON Export</span>
+          <span class="tag tag-tools">Dark/Light</span>
+          <span class="tag tag-tools">Collections</span>
+        </div>
+      </a>
+
+      <a href="eureka-orange.css" class="card-link fade-up fade-up-1" data-search="css custom properties utility classes base reset implementation">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(245,158,11,0.1);">{ }</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">CSS Package</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">全トークンのCSS Custom Properties + ユーティリティクラス。Dark/Lightテーマ・コンポーネントCSSを含む。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-tools">CSS Variables</span>
+          <span class="tag tag-tools">Utilities</span>
+          <span class="tag tag-tools">Components</span>
+        </div>
+      </a>
+
+      <a href="tailwind.config.js" class="card-link fade-up fade-up-2" data-search="tailwind config colors spacing radius animation theme extend">
+        <div class="card-arrow">↗</div>
+        <div class="icon-box" style="background:rgba(245,158,11,0.1);">⊙</div>
+        <h3 style="font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-bottom:8px;">Tailwind Config</h3>
+        <p style="font-size:13px;color:var(--eo-text-secondary);line-height:1.65;margin-bottom:16px;">TailwindCSSの全トークン設定。カラー・スペーシング・フォント・アニメーション・シャドウを含む。</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="tag tag-tools">Tailwind v3/v4</span>
+          <span class="tag tag-tools">Theme Extend</span>
+          <span class="tag tag-tools">Animations</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Quick Start -->
+  <div style="background:var(--eo-surface-raised);border:1px solid var(--eo-surface-border);border-radius:var(--eo-radius-2xl);padding:40px;margin-top:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+      <div>
+        <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-accent);letter-spacing:0.1em;margin-bottom:16px;">─── Quick Start</div>
+        <h3 style="font-weight:700;font-size:20px;letter-spacing:-0.02em;margin-bottom:12px;">5分で始める</h3>
+        <p style="font-size:14px;color:var(--eo-text-secondary);line-height:1.7;margin-bottom:20px;">
+          <code style="font-family:var(--eo-font-mono);font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">eureka-orange.css</code> をHTMLに読み込むだけで、全トークン・ユーティリティクラス・コンポーネントCSSが使えます。
+        </p>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:24px;height:24px;border-radius:6px;background:rgba(30,207,163,0.12);border:1px solid rgba(30,207,163,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);">1</div>
+            <div style="font-size:13px;color:var(--eo-text-secondary);padding-top:3px;">CSSファイルをlink要素で読み込む</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:24px;height:24px;border-radius:6px;background:rgba(30,207,163,0.12);border:1px solid rgba(30,207,163,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);">2</div>
+            <div style="font-size:13px;color:var(--eo-text-secondary);padding-top:3px;"><code style="font-family:var(--eo-font-mono);font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">&lt;html data-theme="dark"&gt;</code> でテーマ指定</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:24px;height:24px;border-radius:6px;background:rgba(30,207,163,0.12);border:1px solid rgba(30,207,163,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--eo-font-mono);font-size:10px;color:var(--eo-accent);">3</div>
+            <div style="font-size:13px;color:var(--eo-text-secondary);padding-top:3px;"><code style="font-family:var(--eo-font-mono);font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">var(--eo-*)</code> トークンまたは <code style="font-family:var(--eo-font-mono);font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">eo-btn</code> クラスを使用</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-tertiary);margin-bottom:12px;">index.html</div>
+        <pre style="background:#080807;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px;font-family:var(--eo-font-mono);font-size:12px;line-height:1.8;overflow-x:auto;"><span style="color:#6e6d63">&lt;!-- 1. Load CSS --&gt;</span>
+<span style="color:#9b9a91">&lt;</span><span style="color:#52e2bc">link</span> <span style="color:#1ecfa3">rel</span>=<span style="color:#fbbf24">"stylesheet"</span>
+      <span style="color:#1ecfa3">href</span>=<span style="color:#fbbf24">"eureka-orange.css"</span><span style="color:#9b9a91">&gt;</span>
+
+<span style="color:#6e6d63">&lt;!-- 2. Set theme --&gt;</span>
+<span style="color:#9b9a91">&lt;</span><span style="color:#52e2bc">html</span> <span style="color:#1ecfa3">data-theme</span>=<span style="color:#fbbf24">"dark"</span><span style="color:#9b9a91">&gt;</span>
+
+<span style="color:#6e6d63">&lt;!-- 3. Use tokens + classes --&gt;</span>
+<span style="color:#9b9a91">&lt;</span><span style="color:#52e2bc">button</span> <span style="color:#1ecfa3">class</span>=<span style="color:#fbbf24">"eo-btn eo-btn-primary"</span><span style="color:#9b9a91">&gt;</span>
+  Get started
+<span style="color:#9b9a91">&lt;/</span><span style="color:#52e2bc">button</span><span style="color:#9b9a91">&gt;</span>
+
+<span style="color:#6e6d63">/* Or use raw tokens */</span>
+<span style="color:#9b9a91">.</span><span style="color:#52e2bc">my-element</span> <span style="color:#9b9a91">{</span>
+  <span style="color:#1ecfa3">color</span><span style="color:#9b9a91">:</span> <span style="color:#a855f7">var</span>(<span style="color:#fbbf24">--eo-accent</span>)<span style="color:#9b9a91">;</span>
+  <span style="color:#1ecfa3">background</span><span style="color:#9b9a91">:</span> <span style="color:#a855f7">var</span>(<span style="color:#fbbf24">--eo-surface-raised</span>)<span style="color:#9b9a91">;</span>
+<span style="color:#9b9a91">}</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--eo-surface-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="20" height="20" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="38" stroke="#1ecfa3" stroke-width="2"/><path d="M40 20L54 28L54 52" stroke="#1ecfa3" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M26 28L40 20" stroke="#52e2bc" stroke-width="2.5" stroke-linecap="round"/><circle cx="40" cy="40" r="4" fill="#1ecfa3"/></svg>
+      <span style="font-weight:700;font-size:13px;">EurekaOrange Design System</span>
+      <span class="version-badge">v1.0.0</span>
+    </div>
+    <span style="font-family:var(--eo-font-mono);font-size:11px;color:var(--eo-text-disabled);">© 2025 · Built with EurekaOrange CSS</span>
+  </div>
+
+</div>
+</main>
+
+<script>
+function filterCards(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.card-link').forEach(card => {
+    const text = (card.dataset.search || '') + ' ' + card.textContent.toLowerCase();
+    card.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.section-group').forEach(section => {
+    const visible = [...section.querySelectorAll('.card-link')].some(c => c.style.display !== 'none');
+    section.style.display = visible ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

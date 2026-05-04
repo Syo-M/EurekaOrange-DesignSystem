@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EurekaOrange — Brand Assets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0b;
+  --surface-raised: #1a1a17;
+  --border: rgba(255,255,255,0.07);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+body {
+  font-family: var(--font-display);
+  background: var(--bg);
+  color: #fff;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #131311; }
+::-webkit-scrollbar-thumb { background: #2e2d28; border-radius: 3px; }
+</style>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ── Logo mark SVG ─────────────────────────────────────────────── */
+function LogoMark({ size = 80, stroke = '#1ecfa3', accent = '#52e2bc', fill = 'none' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none">
+      <defs>
+        <linearGradient id={`g-${size}`} x1="2" y1="2" x2="78" y2="78" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor={accent} />
+          <stop offset="100%" stopColor={stroke} />
+        </linearGradient>
+      </defs>
+      <circle cx="40" cy="40" r="38" stroke={`url(#g-${size})`} strokeWidth="2" />
+      <path d="M26 28 L40 20 L54 28 L54 52 L40 60 L26 52 Z" fill={stroke} opacity="0.10" />
+      <path d="M40 20 L54 28 L54 52" stroke={stroke} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M26 28 L40 20" stroke={accent} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M26 52 L40 60 L54 52" stroke={stroke} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.45" />
+      <circle cx="40" cy="40" r="7" fill={stroke} opacity="0.18" />
+      <circle cx="40" cy="40" r="4" fill={stroke} />
+      <line x1="40" y1="28" x2="40" y2="36" stroke="#8eefd4" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* ── Asset card wrapper ────────────────────────────────────────── */
+function AssetCard({ label, size, children, onDownload }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          background: 'var(--surface-raised)',
+          border: `1px solid ${hovered ? 'rgba(30,207,163,0.3)' : 'var(--border)'}`,
+          borderRadius: '16px', overflow: 'hidden',
+          transition: 'border-color 0.2s',
+          position: 'relative', cursor: 'default',
+        }}
+      >
+        {children}
+        {hovered && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(13,13,11,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(2px)',
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)', fontSize: '12px',
+              color: '#52e2bc', letterSpacing: '0.08em',
+            }}>PREVIEW</span>
+          </div>
+        )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+        <div>
+          <div style={{ fontSize: '13px', fontWeight: 600 }}>{label}</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6e6d63' }}>{size}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── OG Banner (1200×630) ─────────────────────────────────────── */
+function OGBanner() {
+  return (
+    <div style={{
+      width: '100%', aspectRatio: '1200/630',
+      background: '#0d0d0b', position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center',
+    }}>
+      {/* Grid */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+      }} />
+      {/* Glow */}
+      <div style={{
+        position: 'absolute', right: '15%', top: '50%', transform: 'translateY(-50%)',
+        width: '400px', height: '400px', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(30,207,163,0.18) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+      {/* Ghost letters */}
+      <div style={{
+        position: 'absolute', right: '-20px', bottom: '-40px',
+        fontFamily: 'var(--font-display)', fontWeight: 700,
+        fontSize: '260px', lineHeight: 1,
+        color: 'transparent', WebkitTextStroke: '1.5px rgba(30,207,163,0.07)',
+        letterSpacing: '-0.05em', userSelect: 'none',
+      }}>EO</div>
+
+      {/* Content */}
+      <div style={{ padding: '0 8% ', position: 'relative', zIndex: 1 }}>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '13px',
+          color: '#1ecfa3', letterSpacing: '0.12em', textTransform: 'uppercase',
+          marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px',
+        }}>
+          <LogoMark size={28} />
+          EurekaOrange
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontWeight: 700,
+          fontSize: '72px', letterSpacing: '-0.04em', lineHeight: 1,
+          marginBottom: '20px',
+        }}>
+          <span style={{ display: 'block' }}>Design</span>
+          <span style={{
+            display: 'block',
+            background: 'linear-gradient(135deg, #52e2bc 0%, #1ecfa3 50%, #0fb389 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>System.</span>
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontSize: '18px',
+          color: '#9b9a91', fontWeight: 400,
+        }}>発見の瞬間をデザインする言語</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Twitter Card (1200×675) ──────────────────────────────────── */
+function TwitterCard() {
+  return (
+    <div style={{
+      width: '100%', aspectRatio: '1200/675',
+      background: 'linear-gradient(135deg, #0d0d0b 0%, #1a1a17 100%)',
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      {/* Diagonal accent bar */}
+      <div style={{
+        position: 'absolute', top: '-80px', right: '-80px',
+        width: '360px', height: '360px', borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(30,207,163,0.22) 0%, transparent 65%)',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: '0', left: '0', right: '0',
+        height: '3px',
+        background: 'linear-gradient(90deg, #52e2bc, #1ecfa3, #0fb389)',
+      }} />
+      {/* Center */}
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <LogoMark size={72} />
+        <div style={{
+          fontFamily: 'var(--font-display)', fontSize: '52px', fontWeight: 700,
+          letterSpacing: '-0.04em', lineHeight: 1.1, marginTop: '20px',
+        }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #52e2bc, #1ecfa3)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>Eureka</span>
+          <span style={{ color: '#fff' }}>Orange</span>
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '14px',
+          color: '#6e6d63', marginTop: '12px', letterSpacing: '0.08em',
+        }}>DESIGN SYSTEM v1.0</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── App Icon (1024×1024) ─────────────────────────────────────── */
+function AppIcon({ size = '100%' }) {
+  return (
+    <div style={{
+      width: size, aspectRatio: '1/1',
+      background: '#0d0d0b',
+      borderRadius: '22.5%',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'radial-gradient(ellipse 80% 80% at 60% 40%, rgba(30,207,163,0.2) 0%, transparent 70%)',
+      }} />
+      <LogoMark size={180} />
+    </div>
+  );
+}
+
+/* ── Favicon (32×32) ──────────────────────────────────────────── */
+function Favicon() {
+  return (
+    <div style={{
+      width: '64px', height: '64px',
+      background: '#0d0d0b',
+      borderRadius: '12px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      border: '1px solid rgba(30,207,163,0.2)',
+    }}>
+      <LogoMark size={44} />
+    </div>
+  );
+}
+
+/* ── Wide Banner (1920×480) ───────────────────────────────────── */
+function WideBanner() {
+  return (
+    <div style={{
+      width: '100%', aspectRatio: '1920/480',
+      background: '#0d0d0b',
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center',
+    }}>
+      {/* Horizontal scan lines */}
+      {[...Array(8)].map((_, i) => (
+        <div key={i} style={{
+          position: 'absolute', left: 0, right: 0,
+          top: `${(i / 8) * 100}%`, height: '1px',
+          background: 'rgba(255,255,255,0.02)',
+        }} />
+      ))}
+      {/* Gradient accent */}
+      <div style={{
+        position: 'absolute', left: '20%', top: 0, bottom: 0, width: '1px',
+        background: 'linear-gradient(180deg, transparent, rgba(30,207,163,0.4), transparent)',
+      }} />
+      <div style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: '40%',
+        background: 'linear-gradient(90deg, transparent, rgba(30,207,163,0.04))',
+      }} />
+
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        padding: '0 6%', gap: '48px', position: 'relative', zIndex: 1,
+        width: '100%',
+      }}>
+        <LogoMark size={100} />
+        <div style={{ height: '80px', width: '1px', background: 'rgba(30,207,163,0.3)' }} />
+        <div>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontWeight: 700,
+            fontSize: '52px', letterSpacing: '-0.04em', lineHeight: 1,
+          }}>
+            <span style={{
+              background: 'linear-gradient(135deg, #52e2bc, #1ecfa3)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            }}>EurekaOrange</span>
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '14px',
+            color: '#6e6d63', letterSpacing: '0.1em', marginTop: '8px',
+          }}>DESIGN SYSTEM</div>
+        </div>
+        <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontSize: '14px',
+            color: '#6e6d63',
+          }}>
+            {['Colors', 'Typography', 'Spacing', 'Components'].map((t, i) => (
+              <span key={t} style={{ marginLeft: i > 0 ? '24px' : 0 }}>{t}</span>
+            ))}
+          </div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '12px',
+            color: 'rgba(30,207,163,0.6)', marginTop: '8px',
+          }}>v1.0.0</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Social Square (1080×1080) ───────────────────────────────── */
+function SocialSquare() {
+  return (
+    <div style={{
+      width: '100%', aspectRatio: '1/1',
+      background: '#0d0d0b',
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+    }}>
+      {/* Top-left grid */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+        backgroundSize: '64px 64px',
+      }} />
+      {/* Corner accent */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0,
+        width: '200px', height: '200px',
+        background: 'radial-gradient(circle at 0% 0%, rgba(30,207,163,0.15) 0%, transparent 70%)',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: 0, right: 0,
+        width: '240px', height: '240px',
+        background: 'radial-gradient(circle at 100% 100%, rgba(30,207,163,0.1) 0%, transparent 70%)',
+      }} />
+
+      {/* Bottom bar */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px',
+        background: 'linear-gradient(90deg, #52e2bc, #1ecfa3, #0fb389)',
+      }} />
+
+      {/* Content */}
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <LogoMark size={100} />
+        <div style={{
+          fontFamily: 'var(--font-display)', fontWeight: 700,
+          fontSize: '56px', letterSpacing: '-0.04em', lineHeight: 1.05,
+          marginTop: '24px',
+        }}>
+          <div style={{ color: '#fff' }}>Design</div>
+          <div style={{
+            background: 'linear-gradient(135deg, #52e2bc 0%, #1ecfa3 60%, #0fb389 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>System.</div>
+        </div>
+        <div style={{
+          fontFamily: 'var(--font-mono)', fontSize: '13px',
+          color: '#6e6d63', marginTop: '20px', letterSpacing: '0.12em',
+        }}>EUREKA ORANGE · v1.0</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Email Header (600×200) ──────────────────────────────────── */
+function EmailHeader() {
+  return (
+    <div style={{
+      width: '100%', aspectRatio: '600/200',
+      background: '#111110',
+      borderBottom: '2px solid #1ecfa3',
+      display: 'flex', alignItems: 'center',
+      padding: '0 8%',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', right: '5%', top: 0, bottom: 0,
+        display: 'flex', alignItems: 'center', opacity: 0.06,
+      }}>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontWeight: 700,
+          fontSize: '120px', letterSpacing: '-0.05em',
+          color: '#1ecfa3',
+        }}>EO</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', zIndex: 1 }}>
+        <LogoMark size={44} />
+        <div>
+          <div style={{
+            fontFamily: 'var(--font-display)', fontWeight: 700,
+            fontSize: '22px', letterSpacing: '-0.02em',
+          }}>EurekaOrange</div>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px',
+            color: '#6e6d63', letterSpacing: '0.08em',
+          }}>DESIGN SYSTEM</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main App ─────────────────────────────────────────────────── */
+function App() {
+  const assets = [
+    { label: 'OG Image', size: '1200 × 630 px', el: <OGBanner /> },
+    { label: 'Twitter / X Card', size: '1200 × 675 px', el: <TwitterCard /> },
+    { label: 'Wide Banner', size: '1920 × 480 px', el: <WideBanner /> },
+    { label: 'Social Square', size: '1080 × 1080 px', el: <SocialSquare /> },
+    { label: 'Email Header', size: '600 × 200 px', el: <EmailHeader /> },
+  ];
+
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      {/* Nav */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 10,
+        background: 'rgba(13,13,11,0.92)', backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '0 40px', height: '56px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <a href="EurekaOrange Design System.html" style={{
+            fontFamily: 'var(--font-mono)', fontSize: '12px',
+            color: '#6e6d63', textDecoration: 'none',
+          }}>← Design System</a>
+          <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontWeight: 600, fontSize: '14px' }}>Brand Assets</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Small icon sizes */}
+          <Favicon />
+          <AppIcon size="40px" />
+        </div>
+      </div>
+
+      <div style={{ padding: '48px 40px 80px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '56px' }}>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px',
+            color: '#1ecfa3', letterSpacing: '0.12em',
+            textTransform: 'uppercase', marginBottom: '12px',
+            display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            <span style={{ display: 'inline-block', width: '24px', height: '1px', background: '#1ecfa3' }} />
+            06 — Brand Assets
+          </div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)', fontWeight: 700,
+            fontSize: '48px', letterSpacing: '-0.03em', marginBottom: '12px',
+          }}>Brand Assets</h1>
+          <p style={{ color: '#9b9a91', fontSize: '16px', maxWidth: '520px' }}>
+            各種メディア向けのブランド画像。すべてSVGベースでシャープに表示されます。
+          </p>
+        </div>
+
+        {/* Logo section */}
+        <div style={{
+          background: '#1a1a17', border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '20px', padding: '40px', marginBottom: '48px',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px',
+            color: '#6e6d63', letterSpacing: '0.1em', marginBottom: '32px',
+          }}>─── Logo Mark & Sizes</div>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            {[
+              { size: 16, label: '16px' },
+              { size: 24, label: '24px' },
+              { size: 32, label: '32px' },
+              { size: 48, label: '48px' },
+              { size: 64, label: '64px' },
+              { size: 96, label: '96px' },
+              { size: 128, label: '128px' },
+            ].map(s => (
+              <div key={s.size} style={{ textAlign: 'center' }}>
+                <LogoMark size={s.size} />
+                <div style={{
+                  fontFamily: 'var(--font-mono)', fontSize: '10px',
+                  color: '#484740', marginTop: '8px',
+                }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Wordmark variants */}
+          <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: '11px',
+              color: '#6e6d63', letterSpacing: '0.1em', marginBottom: '8px',
+            }}>─── Wordmark Variants</div>
+            {/* Full */}
+            <div style={{
+              padding: '24px 32px', background: '#0d0d0b',
+              borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)',
+              display: 'flex', alignItems: 'center', gap: '16px',
+            }}>
+              <LogoMark size={40} />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em' }}>EurekaOrange</span>
+              <span style={{
+                fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#484740',
+                marginLeft: '4px', letterSpacing: '0.08em',
+              }}>FULL LOCKUP — DARK</span>
+            </div>
+            {/* Light bg */}
+            <div style={{
+              padding: '24px 32px', background: '#f5f5f3',
+              borderRadius: '12px', border: '1px solid rgba(0,0,0,0.06)',
+              display: 'flex', alignItems: 'center', gap: '16px',
+            }}>
+              <LogoMark size={40} stroke="#0fb389" accent="#098f6d" />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', color: '#0d0d0b' }}>EurekaOrange</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9b9a91', marginLeft: '4px', letterSpacing: '0.08em' }}>FULL LOCKUP — LIGHT</span>
+            </div>
+            {/* Orange */}
+            <div style={{
+              padding: '24px 32px',
+              background: 'linear-gradient(135deg, #1ecfa3 0%, #0fb389 100%)',
+              borderRadius: '12px',
+              display: 'flex', alignItems: 'center', gap: '16px',
+            }}>
+              <LogoMark size={40} stroke="rgba(0,0,0,0.5)" accent="rgba(0,0,0,0.3)" />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', color: 'rgba(0,0,0,0.75)' }}>EurekaOrange</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(0,0,0,0.4)', marginLeft: '4px', letterSpacing: '0.08em' }}>FULL LOCKUP — BRAND</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Banner assets grid */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {assets.map(a => (
+            <AssetCard key={a.label} label={a.label} size={a.size}>
+              {a.el}
+            </AssetCard>
+          ))}
+        </div>
+
+        {/* App icon + favicon */}
+        <div style={{
+          marginTop: '48px',
+          background: '#1a1a17', border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '20px', padding: '40px',
+        }}>
+          <div style={{
+            fontFamily: 'var(--font-mono)', fontSize: '11px',
+            color: '#6e6d63', letterSpacing: '0.1em', marginBottom: '32px',
+          }}>─── App Icons</div>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            {[
+              { size: '160px', label: 'App Icon', sub: '1024×1024 px' },
+              { size: '96px',  label: 'Medium',   sub: '512×512 px' },
+              { size: '64px',  label: 'Small',    sub: '256×256 px' },
+              { size: '48px',  label: 'Favicon',  sub: '32×32 px' },
+            ].map(i => (
+              <div key={i.label} style={{ textAlign: 'center' }}>
+                <AppIcon size={i.size} />
+                <div style={{ fontSize: '13px', fontWeight: 600, marginTop: '10px' }}>{i.label}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6e6d63' }}>{i.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
