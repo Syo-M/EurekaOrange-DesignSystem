@@ -42,30 +42,34 @@ body { font-family: var(--font-d); background: var(--bg); color: var(--text-1); 
 ::selection { background: rgba(30,207,163,0.25); color: #fff; }
 
 /* Layout */
-.layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.layout { display: grid; grid-template-columns: 200px 1fr; min-height: 100vh; }
 .sidebar {
-  position: fixed; top: 52px; left: 0; bottom: 0; width: 220px;
+  position: fixed; top: 52px; left: 0; bottom: 0; width: 200px;
   background: var(--surface); border-right: 1px solid var(--border);
   display: flex; flex-direction: column; z-index: 50;
-  padding: 24px 0;
+  padding: 20px 0;
 }
-.main { margin-left: 220px; padding: 48px 56px 120px; }
+.main {
+  margin-left: 200px;
+  padding: 32px 40px 80px;
+  max-width: 1400px;
+}
 
 /* Section */
-.section { margin-bottom: 80px; }
+.section { margin-bottom: 48px; }
 .section-label {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
 }
 .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* Card */
 .card {
   background: var(--raised); border: 1px solid var(--border);
-  border-radius: 16px; padding: 32px;
+  border-radius: 12px; padding: 20px;
 }
 .card-title {
-  font-family: var(--font-m); font-size: 12px; color: var(--text-3);
-  letter-spacing: 0.06em; margin-bottom: 24px;
+  font-family: var(--font-m); font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.06em; margin-bottom: 14px;
 }
 </style>
 <script src="nav.js"></script>
@@ -118,7 +122,7 @@ function SectionLabel({ num, children }) {
 
 function CardGrid({ cols = 2, children }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '20px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: '14px' }}>
       {children}
     </div>
   );
