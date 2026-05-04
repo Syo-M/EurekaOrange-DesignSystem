@@ -41,6 +41,7 @@ jobs:
           # Copy HTML pages + assets to _site/
           mkdir -p _site/storybook
           cp *.html _site/ 2>/dev/null || true
+          cp *.jsx _site/ 2>/dev/null || true
           cp eureka-orange.css _site/
           cp nav.js _site/
           cp tailwind.config.js _site/ 2>/dev/null || true
